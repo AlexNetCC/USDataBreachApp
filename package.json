@@ -1,0 +1,10 @@
+{
+  "name": "data-breach-law-navigator",
+  "version": "1.0.0",
+  "description": "A tool to analyze U.S. data breach laws.",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}

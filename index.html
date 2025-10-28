@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Breach Law Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Lexend', 'sans-serif'],
+            },
+            colors: {
+              'brand-primary': '#0D47A1',
+              'brand-secondary': '#1565C0',
+              'brand-accent': '#1976D2',
+              'brand-light': '#E3F2FD',
+              'text-primary': '#1A202C',
+              'text-secondary': '#4A5568',
+              'border-color': '#E2E8F0',
+            },
+          },
+        },
+      }
+    </script>
+    <style type="text/css">
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        header, aside, .no-print {
+          display: none !important;
+        }
+        main {
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .printable-content {
+          box-shadow: none !important;
+          border: none !important;
+        }
+        details > div {
+           display: block !important;
+        }
+         details > summary > svg {
+            display: none !important;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "gray-matter": "https://aistudiocdn.com/gray-matter@^4.0.3"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-50 font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
