@@ -7,29 +7,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
-              display: ['Lexend', 'sans-serif'],
+              display: ['EB Garamond', 'serif'],
             },
             colors: {
-              'brand-primary': '#0D47A1',
-              'brand-secondary': '#1565C0',
-              'brand-accent': '#1976D2',
-              'brand-light': '#E3F2FD',
-              'text-primary': '#1A202C',
-              'text-secondary': '#4A5568',
-              'border-color': '#E2E8F0',
+              background: '#F9F7F4',      // Off-white main background
+              surface: '#0B0F19',          // Dark navy for sidebars/headers
+              'surface-light': '#FFFFFF', // White for cards on light bg
+              'border-light': '#E5E7EB',    // Light gray border
+              'border-dark': '#374151',     // Darker gray border for dark surfaces
+              accent: '#D97706',           // Burnt orange accent (amber-600)
+              'accent-hover': '#B45309',   // Darker orange (amber-700)
+              'text-primary': '#526B82',     // Dark gray for text on light bg (Tailwind gray-800)
+              'text-secondary': '#4B5563',   // Lighter gray for secondary text on light bg
+              'text-on-dark': '#D1D5DB',       // Softer off-white for primary text on dark bg (Tailwind gray-300)
+              'text-on-dark-secondary': '#6B7280', // More subdued gray for secondary text on dark bg (Tailwind gray-500)
             },
+            boxShadow: {
+              'subtle': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+              'card': '0 4px 12px 0 rgb(0 0 0 / 0.07)',
+              'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+            }
           },
         },
       }
     </script>
     <style type="text/css">
+      .h-screen-minus-header { height: calc(100vh - 88px); }
+      
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.5s ease-out forwards;
+      }
+
       @media print {
         body {
           -webkit-print-color-adjust: exact;
@@ -38,16 +57,15 @@
         header, aside, .no-print {
           display: none !important;
         }
-        main {
+        main, .printable-content {
           width: 100% !important;
           height: auto !important;
           overflow: visible !important;
           padding: 0 !important;
           margin: 0 !important;
-        }
-        .printable-content {
           box-shadow: none !important;
           border: none !important;
+          background-color: white !important;
         }
         details > div {
            display: block !important;
@@ -67,13 +85,15 @@
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
-    "gray-matter": "https://aistudiocdn.com/gray-matter@^4.0.3"
+    "gray-matter": "https://aistudiocdn.com/gray-matter@^4.0.3",
+    "fs/": "https://aistudiocdn.com/fs@^0.0.1-security/",
+    "path": "https://aistudiocdn.com/path@^0.12.7"
   }
 }
 </script>
 </head>
-  <body class="bg-gray-50 font-sans">
+  <body class="bg-background text-text-primary">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>

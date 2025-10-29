@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "A tool to analyze U.S. data breach laws.",
   "main": "index.js",
+  "type": "module",
   "scripts": {},
-  "dependencies": {
+  "devDependencies": {
     "gray-matter": "^4.0.3"
   }
 }

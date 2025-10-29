@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { StateLaw } from '../types';
 import ComparisonSection, { ComparisonField } from './ComparisonSection';
@@ -14,7 +15,7 @@ const keyTimelineFields: ComparisonField[] = [
 
 const notificationTriggerFields: ComparisonField[] = [
     { label: 'Breach Definition', key: 'breachDefinitionText', isLongText: true },
-    { label: 'Trigger Type', key: 'breachTrigger' },
+    { label: 'Trigger Type', key: 'breachTrigger', render: (val) => val ? String(val).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'N/A' },
     { label: 'Risk of Harm Analysis Allowed', key: 'riskOfHarmAnalysisCanEliminateNotification', isBoolean: true },
     { label: 'Risk of Harm Standard', key: 'riskOfHarmAnalysisStandard', isLongText: true },
 ];
@@ -47,17 +48,17 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ laws }) => {
 
   return (
     <div className="space-y-6 printable-content">
-      <header className="pb-4 border-b border-border-color">
+      <header className="pb-4 border-b border-border-light">
         <div className="flex justify-between items-start">
             <div>
-                <h1 className="text-4xl font-bold font-display text-text-primary">Comparative Analysis</h1>
+                <h1 className="text-5xl font-bold font-display text-text-primary">Comparative Analysis</h1>
                 <p className="mt-2 text-lg text-text-secondary">
                   Comparing {laws.map(l => l.state).join(', ')}
                 </p>
             </div>
             <button
               onClick={handlePrint}
-              className="no-print px-4 py-2 bg-brand-secondary text-white font-semibold rounded-md hover:bg-brand-primary transition flex items-center space-x-2"
+              className="no-print px-4 py-2 bg-accent text-white font-semibold rounded-md hover:bg-accent-hover transition flex items-center space-x-2"
             >
                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H5zm3 1a1 1 0 000 2h2a1 1 0 100-2H8zM5 12a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
@@ -67,7 +68,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ laws }) => {
             </button>
         </div>
          <div className="mt-4 flex items-center text-sm text-text-secondary no-print">
-            <span className="w-4 h-4 rounded-full bg-yellow-50 border border-yellow-300 mr-2"></span>
+            <span className="w-4 h-4 rounded-full bg-accent/10 border border-accent/20 mr-2"></span>
             <span>Rows are highlighted when legal requirements differ across selected jurisdictions.</span>
         </div>
       </header>

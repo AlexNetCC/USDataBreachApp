@@ -72,14 +72,14 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
           <label className="block text-md font-semibold text-text-primary mb-2">What type of entity are you?</label>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
             {(['business', 'government', 'healthcare'] as const).map(option => (
-              <label key={option} className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition">
+              <label key={option} className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition border-border-light">
                 <input
                   type="radio"
                   name="entityType"
                   value={option}
                   checked={entityType === option}
                   onChange={() => setEntityType(option)}
-                  className="h-4 w-4 text-brand-secondary focus:ring-brand-accent"
+                  className="h-4 w-4 text-accent focus:ring-accent"
                 />
                 <span className="ml-3 capitalize text-text-primary">{option === 'healthcare' ? 'Healthcare/HIPAA Covered' : option}</span>
               </label>
@@ -91,12 +91,12 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
             <label className="block text-md font-semibold text-text-primary mb-2">What types of personal information were involved?</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {commonDataTypes.map(option => (
-                <label key={option.id} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer">
+                <label key={option.id} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer border-border-light">
                     <input
                         type="checkbox"
                         checked={dataTypes.includes(option.id)}
                         onChange={() => handleDataTypeChange(option.id)}
-                        className="h-5 w-5 rounded border-gray-300 text-brand-secondary focus:ring-brand-accent mt-0.5"
+                        className="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent mt-0.5"
                     />
                     <div className="ml-3">
                         <span className="font-medium text-text-primary">{option.label}</span>
@@ -105,21 +105,21 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
                 </label>
             ))}
             </div>
-            <details className="group mt-3 border rounded-md">
+            <details className="group mt-3 border rounded-md border-border-light">
                 <summary className="list-none flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 text-sm font-medium text-text-secondary">
                     <span>Show Other PII Types</span>
                      <svg className="w-5 h-5 text-gray-500 transition-transform duration-200 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </summary>
-                <div className="p-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-4 border-t border-border-light grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {otherDataTypes.map(option => (
-                        <label key={option.id} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer">
+                        <label key={option.id} className="flex items-start p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer border-border-light">
                             <input
                                 type="checkbox"
                                 checked={dataTypes.includes(option.id)}
                                 onChange={() => handleDataTypeChange(option.id)}
-                                className="h-5 w-5 rounded border-gray-300 text-brand-secondary focus:ring-brand-accent mt-0.5"
+                                className="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent mt-0.5"
                             />
                             <div className="ml-3">
                                 <span className="font-medium text-text-primary">{option.label}</span>
@@ -142,7 +142,7 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
                   value={option}
                   checked={isEncrypted === option}
                   onChange={() => setIsEncrypted(option)}
-                  className="h-4 w-4 text-brand-secondary focus:ring-brand-accent"
+                  className="h-4 w-4 text-accent focus:ring-accent"
                 />
                 <span className="ml-2 capitalize">{option}</span>
               </label>
@@ -151,7 +151,7 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
         </div>
 
         {isEncrypted === 'yes' && (
-          <div className="pl-4 border-l-4 border-brand-accent/30">
+          <div className="pl-4 border-l-4 border-accent/30">
             <label className="block text-md font-semibold text-text-primary mb-2">Was the encryption key also compromised?</label>
              <div className="flex space-x-4">
                 {(['yes', 'no', 'unknown'] as const).map(option => (
@@ -162,7 +162,7 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
                       value={option}
                       checked={wasKeyCompromised === option}
                       onChange={() => setWasKeyCompromised(option)}
-                      className="h-4 w-4 text-brand-secondary focus:ring-brand-accent"
+                      className="h-4 w-4 text-accent focus:ring-accent"
                     />
                     <span className="ml-2 capitalize">{option}</span>
                   </label>
@@ -185,7 +185,7 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
                   name="lowRiskOfHarmConsidered"
                   checked={lowRiskOfHarmConsidered === option.value}
                   onChange={() => setLowRiskOfHarmConsidered(option.value)}
-                  className="h-4 w-4 text-brand-secondary focus:ring-brand-accent"
+                  className="h-4 w-4 text-accent focus:ring-accent"
                 />
                 <span className="ml-2 capitalize">{option.label}</span>
               </label>
@@ -203,7 +203,7 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
                   name="lawEnforcementInvolvement"
                   checked={lawEnforcementInvolvement === option}
                   onChange={() => setLawEnforcementInvolvement(option)}
-                  className="h-4 w-4 text-brand-secondary focus:ring-brand-accent"
+                  className="h-4 w-4 text-accent focus:ring-accent"
                 />
                 <span className="ml-2 capitalize">{option ? 'Yes' : 'No'}</span>
               </label>

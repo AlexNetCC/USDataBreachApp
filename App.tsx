@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { StateLaw, Filters, AppState, ViewMode, LawIndex } from './types';
 import StateSelector from './components/StateSelector';
@@ -6,22 +7,8 @@ import ComparisonView from './components/ComparisonView';
 import Welcome from './components/Welcome';
 import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWizard';
 import MatrixView from './components/MatrixView';
-import matter from 'gray-matter';
 import { createLawIndex } from './services/dataIndexService';
-
-// Hardcoded list of all law files to be fetched.
-const lawFiles = [
-  'alabama.md', 'alaska.md', 'arizona.md', 'arkansas.md', 'california.md', 'colorado.md', 
-  'connecticut.md', 'delaware.md', 'district-of-columbia.md', 'florida.md', 'georgia.md', 
-  'hawaii.md', 'idaho.md', 'illinois.md', 'indiana.md', 'iowa.md', 'kansas.md', 'kentucky.md', 
-  'louisiana.md', 'maine.md', 'maryland.md', 'massachusetts.md', 'michigan.md', 'minnesota.md', 
-  'mississippi.md', 'missouri.md', 'montana.md', 'nebraska.md', 'nevada.md', 'new-hampshire.md', 
-  'new-jersey.md', 'new-mexico.md', 'new-york.md', 'north-carolina.md', 'north-dakota.md', 
-  'ohio.md', 'oklahoma.md', 'oregon.md', 'pennsylvania.md', 'puerto-rico.md', 'rhode-island.md', 
-  'south-carolina.md', 'south-dakota.md', 'tennessee.md', 'texas.md', 'utah.md', 'vermont.md', 
-  'virginia.md', 'washington.md', 'west-virginia.md', 'wisconsin.md', 'wyoming.md'
-];
-
+import { loadAppState, saveAppState } from './services/stateService';
 
 const initialFilters: Filters = {
   timelineMaxDays: null,
@@ -46,71 +33,32 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [appState, setAppState] = useState<AppState>(() => {
-    try {
-      const savedState = sessionStorage.getItem('breachLawNavigatorState');
-      if (savedState) {
-        return JSON.parse(savedState);
-      }
-    } catch (e) {
-      console.error("Could not parse saved state:", e);
-    }
-    return defaultAppState;
+    return loadAppState() || defaultAppState;
   });
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem('breachLawNavigatorState', JSON.stringify(appState));
-    } catch(e) {
-      console.error("Could not save state:", e);
-    }
+    saveAppState(appState);
   }, [appState]);
 
   useEffect(() => {
-    const fetchAndParseLaws = async () => {
+    const fetchLaws = async () => {
       try {
-        const lawPromises = lawFiles.map(async (filename) => {
-          const response = await fetch(`/raw-laws/${filename}`);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch ${filename}`);
-          }
-          const fileContents = await response.text();
-          const { data, content } = matter(fileContents);
-
-          const legislativeHistory = [];
-          let i = 1;
-          while (data[`legislation_bill_${i}_number`]) {
-              legislativeHistory.push({
-                  number: data[`legislation_bill_${i}_number`],
-                  signedDate: data[`legislation_bill_${i}_signed_date`],
-                  effectiveDate: data[`legislation_bill_${i}_effective_date`],
-              });
-              i++;
-          }
-  
-          const camelCaseData = Object.keys(data).reduce((acc, key) => {
-              const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
-              acc[camelKey] = data[key];
-              return acc;
-          }, {} as any);
-          
-          return {
-            ...camelCaseData,
-            legislativeHistory,
-            markdownContent: content,
-          };
-        });
-
-        const parsedLaws = (await Promise.all(lawPromises)) as StateLaw[];
-        setAllLaws(parsedLaws);
-        setLawIndex(createLawIndex(parsedLaws));
+        const res = await fetch('laws.json');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch laws.json: ${res.statusText}`);
+        }
+        const laws: StateLaw[] = await res.json();
+        
+        setAllLaws(laws.sort((a, b) => a.state.localeCompare(b.state)));
+        setLawIndex(createLawIndex(laws));
       } catch (e: any) {
-        setError(`Failed to load or parse law files: ${e.message}`);
+        setError(`Failed to load law files: ${e.message}`);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAndParseLaws();
+    fetchLaws();
   }, []);
 
   const handleSelectState = (stateCode: string) => {
@@ -169,7 +117,7 @@ const App: React.FC = () => {
         resultSet = new Set([...resultSet].filter(x => targetSet.has(x)));
     }
     
-    let laws = Array.from(resultSet).map(code => lawIndex.byStateCode.get(code)!);
+    let laws = Array.from(resultSet).map(code => lawIndex.byStateCode.get(code)!).filter(Boolean);
 
     // Apply numeric and text filters on the reduced set
     laws = laws
@@ -205,7 +153,7 @@ const App: React.FC = () => {
             if (end < law.markdownContent.length) rawSnippet += '...';
 
             const regex = new RegExp(appState.searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
-            snippet = rawSnippet.replace(regex, (match) => `<mark class="bg-yellow-200 px-1 rounded">${match}</mark>`);
+            snippet = rawSnippet.replace(regex, (match) => `<mark class="bg-accent/20 text-text-primary px-1 rounded">${match}</mark>`);
           }
           searchResults.push({ ...law, searchSnippet: snippet || undefined });
         }
@@ -233,7 +181,7 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading || !lawIndex) {
-      return <div className="flex justify-center items-center h-screen-minus-header"><p>Loading and parsing {lawFiles.length} jurisdiction summaries...</p></div>;
+      return <div className="flex justify-center items-center h-screen-minus-header"><p>Loading and parsing 52 jurisdiction summaries...</p></div>;
     }
     if (error) {
       return <div className="flex justify-center items-center h-screen-minus-header"><p className="text-red-600">{error}</p></div>;
@@ -243,7 +191,7 @@ const App: React.FC = () => {
       case 'explorer':
         return (
           <div className="flex flex-col md:flex-row">
-            <aside className="w-full md:w-80 lg:w-96 bg-white border-r border-border-color p-4 md:p-6 sticky top-[80px] h-screen-minus-header overflow-y-auto">
+            <aside className="w-full md:w-96 lg:w-[420px] bg-surface border-r border-border-dark p-4 md:p-6 sticky top-[88px] h-screen-minus-header overflow-y-auto text-on-dark">
               <StateSelector
                 laws={filteredLaws}
                 selectedStateCodes={appState.selectedStateCodes}
@@ -256,7 +204,7 @@ const App: React.FC = () => {
                 onResetFilters={handleResetFilters}
               />
             </aside>
-            <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen-minus-header">
+            <main className="flex-1 p-4 md:p-12 overflow-y-auto h-screen-minus-header">
               {renderExplorerContent()}
             </main>
           </div>
@@ -264,44 +212,46 @@ const App: React.FC = () => {
       case 'assessment':
         return <BreachAssessmentWizard laws={allLaws} onViewSummary={handleViewJurisdictionSummary} />;
       case 'matrix':
-        return <MatrixView laws={allLaws} />;
+        return <MatrixView laws={allLaws} onViewSummary={handleViewJurisdictionSummary} />;
       default:
         return null;
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-text-primary">
-      <header className="bg-brand-primary shadow-md sticky top-0 z-20 no-print">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-1.096.906-2.457.906-3.885a4.5 4.5 0 00-4.5-4.5V7.5a6 6 0 11-12 0v4.5a4.5 4.5 0 004.5 4.5c.356 0 .703-.04 1.032-.12a1.307 1.307 0 00-1.217 1.811l1.834 1.834a1.307 1.307 0 001.811-1.217c.162.375.36.72.596 1.032.356-1.036.04-2.422-.96-3.422z" />
-            </svg>
-            <h1 className="text-2xl font-display font-semibold text-white">
+    <div className="min-h-screen bg-background text-text-primary">
+      <header className="bg-surface shadow-lg sticky top-0 z-30 no-print h-[88px]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-on-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <h1 className="text-2xl font-display font-semibold text-on-dark">
               Data Breach Law Navigator
             </h1>
           </div>
-           <div className="flex items-center space-x-2 bg-brand-secondary p-1 rounded-lg">
+           <nav className="flex items-center space-x-2">
             <button
               onClick={() => setViewMode('explorer')}
-              className={`px-3 py-1 text-sm font-semibold rounded-md transition ${appState.viewMode === 'explorer' ? 'bg-white text-brand-primary' : 'text-white hover:bg-brand-accent'}`}
+              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'explorer' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
             >
               Manual Explorer
             </button>
             <button
               onClick={() => setViewMode('assessment')}
-              className={`px-3 py-1 text-sm font-semibold rounded-md transition ${appState.viewMode === 'assessment' ? 'bg-white text-brand-primary' : 'text-white hover:bg-brand-accent'}`}
+              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'assessment' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
             >
               Breach Assessment
             </button>
              <button
               onClick={() => setViewMode('matrix')}
-              className={`px-3 py-1 text-sm font-semibold rounded-md transition ${appState.viewMode === 'matrix' ? 'bg-white text-brand-primary' : 'text-white hover:bg-brand-accent'}`}
+              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'matrix' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
             >
               Requirements Matrix
             </button>
-          </div>
+          </nav>
         </div>
       </header>
       

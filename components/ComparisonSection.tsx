@@ -40,12 +40,12 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = React.memo(({ title,
   }, [laws, fields]);
   
   return (
-    <details open={defaultOpen} className="bg-white rounded-lg shadow-sm border border-border-color overflow-hidden group">
-      <summary className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-accent cursor-pointer list-none">
+    <details open={defaultOpen} className="bg-surface-light rounded-lg shadow-subtle border border-border-light overflow-hidden group">
+      <summary className="w-full flex justify-between items-center p-4 bg-surface-light hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer list-none">
         <h2 className="text-lg font-semibold font-display text-text-primary">{title}</h2>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 text-gray-500 transition-transform duration-200 group-open:rotate-180"
+          className="h-6 w-6 text-gray-500 transition-transform duration-300 group-open:rotate-180"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -53,14 +53,14 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = React.memo(({ title,
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </summary>
-      <div className="p-4 border-t border-border-color">
+      <div className="border-t border-border-light">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] border-collapse text-left">
-            <thead>
-              <tr className="border-b-2 border-brand-primary">
+            <thead className="bg-gray-50">
+              <tr className="border-b-2 border-accent/20">
                 <th className="p-3 font-semibold text-text-primary bg-gray-50 sticky left-0 z-10 w-[200px]">Feature</th>
                 {laws.map(law => (
-                  <th key={law.stateCode} className="p-3 font-semibold text-brand-primary text-center w-[200px]">
+                  <th key={law.stateCode} className="p-3 font-semibold text-accent-hover text-center w-[200px]">
                     {law.state}
                   </th>
                 ))}
@@ -69,13 +69,15 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = React.memo(({ title,
             <tbody>
               {fields.map(field => {
                   const isDifferent = differenceMap.get(field.key as string) ?? false;
+                  const rowBg = isDifferent ? 'bg-accent/5' : 'bg-surface-light';
+                  const stickyColBg = isDifferent ? 'bg-accent/5' : 'bg-surface-light';
 
                   return (
-                    <tr key={field.label} className={`border-b border-border-color ${isDifferent ? 'bg-yellow-50' : ''}`}>
-                      <td className={`p-3 font-medium text-text-secondary sticky left-0 w-[200px] z-10 ${isDifferent ? 'bg-yellow-50' : 'bg-white'}`}>{field.label}</td>
+                    <tr key={field.label} className={`border-b border-border-light ${rowBg}`}>
+                      <td className={`p-3 font-medium text-text-secondary sticky left-0 w-[200px] z-10 ${stickyColBg}`}>{field.label}</td>
                       {laws.map(law => (
                         <td key={law.stateCode} className="p-3 align-top w-[200px]">
-                          <div className={`text-sm ${field.isLongText ? 'text-left whitespace-pre-wrap' : 'text-center'} ${isDifferent ? 'text-gray-900' : 'text-text-secondary'}`}>
+                          <div className={`text-sm ${field.isLongText ? 'text-left whitespace-pre-wrap' : 'text-center'} ${isDifferent ? 'text-text-primary' : 'text-text-secondary'}`}>
                             {field.render 
                                 ? field.render(law[field.key]) 
                                 : field.isBoolean 

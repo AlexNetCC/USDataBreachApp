@@ -4,6 +4,7 @@ import { getTimelineColor, getThresholdColor, getBooleanColor } from '../utils/m
 
 interface MatrixViewProps {
   laws: StateLaw[];
+  onViewSummary: (stateCode: string) => void;
 }
 
 type SortKey = keyof StateLaw | 'state';
@@ -43,7 +44,7 @@ const ALL_COLUMNS: ColumnConfig[] = [
         isLongText: true,
         widthClass: 'min-w-[350px]',
         render: (law) => {
-            const match = law.markdownContent.match(/### Personal Information\n([\s\S]*?)\n##/);
+            const match = law.markdownContent.match(/### (?:Sensitive |Personally Identifiable )?(?:Personal|Private) Information.*\n([\s\S]*?)\n##/);
             return match ? match[1].trim().replace(/^\s*[-*] /gm, '• ').replace(/(\r\n|\n|\r)/gm, "\n") : 'Not specified.';
         }
     },
@@ -52,7 +53,7 @@ const ALL_COLUMNS: ColumnConfig[] = [
     { key: 'exemptionEncryptionSafeHarbor', label: 'Encryption Safe Harbor', defaultVisible: false, sortable: true, widthClass: 'min-w-[220px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.exemptionEncryptionSafeHarbor)}`}>{law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</span> },
 ];
 
-const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
+const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   const [sortKey, setSortKey] = useState<SortKey>('state');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [visibleColumnKeys, setVisibleColumnKeys] = useState<Array<keyof StateLaw>>(
@@ -139,14 +140,14 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
 
        <div className="mb-4 relative">
         <details className="inline-block" ref={detailsRef}>
-          <summary className="list-none px-4 py-2 bg-white border border-border-color rounded-md font-semibold text-text-primary cursor-pointer hover:bg-gray-50 flex items-center select-none">
+          <summary className="list-none px-4 py-2 bg-surface-light border border-border-light rounded-md font-semibold text-text-primary cursor-pointer hover:bg-gray-50 flex items-center select-none">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
               <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
               <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
             </svg>
             Customize Columns
           </summary>
-          <div className="absolute top-full mt-2 w-72 bg-white border border-border-color rounded-lg shadow-xl z-50 p-4">
+          <div className="absolute top-full mt-2 w-72 bg-surface-light border border-border-light rounded-lg shadow-xl z-50 p-4">
             <p className="text-sm font-semibold mb-2 text-text-primary">Select columns to display:</p>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {ALL_COLUMNS.map(col => (
@@ -155,7 +156,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
                     type="checkbox"
                     checked={visibleColumnKeys.includes(col.key)}
                     onChange={() => toggleColumn(col.key)}
-                    className="h-4 w-4 rounded border-gray-300 text-brand-secondary focus:ring-brand-accent"
+                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
                   />
                   <span>{col.label}</span>
                 </label>
@@ -165,13 +166,13 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
         </details>
       </div>
 
-      <div className="overflow-auto border border-gray-200 rounded-lg shadow-md" style={{ maxHeight: '70vh' }}>
+      <div className="overflow-auto border border-border-light rounded-lg shadow-md bg-surface-light" style={{ maxHeight: '70vh' }}>
         <table className="min-w-full border-collapse text-sm">
             <thead className="bg-gray-100">
                 <tr>
                     <th
                         scope="col"
-                        className="sticky top-0 left-0 z-30 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer bg-gray-100 border-b border-r border-gray-200"
+                        className="sticky top-0 left-0 z-30 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer bg-gray-100 border-b border-r border-border-light"
                         onClick={() => handleSort('state')}
                         style={{ minWidth: '180px' }}
                     >
@@ -188,7 +189,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
                         <th
                             key={col.key as string}
                             scope="col"
-                            className={`sticky top-0 z-20 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider select-none bg-gray-100 border-b border-gray-200 ${col.sortable ? 'cursor-pointer' : ''} ${col.widthClass} ${col.isLongText ? 'text-left' : 'text-center'}`}
+                            className={`sticky top-0 z-20 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider select-none bg-gray-100 border-b border-border-light ${col.sortable ? 'cursor-pointer' : ''} ${col.widthClass} ${col.isLongText ? 'text-left' : 'text-center'}`}
                             onClick={() => col.sortable && handleSort(col.key as SortKey)}
                         >
                              <div className={`flex items-center ${col.isLongText ? 'justify-start' : 'justify-center'}`}>
@@ -203,16 +204,21 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws }) => {
                     ))}
                 </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border-light">
                 {sortedLaws.map((law, index) => {
-                    const rowBgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50';
+                    const rowBgClass = index % 2 === 0 ? 'bg-surface-light' : 'bg-gray-50/50';
                     return (
                         <tr key={law.stateCode}>
-                            <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-blue-700 text-left whitespace-nowrap border-r border-gray-200 ${rowBgClass}`}>
-                                {law.state}
+                            <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-left whitespace-nowrap border-r border-border-light ${rowBgClass}`}>
+                                <button
+                                    onClick={() => onViewSummary(law.stateCode)}
+                                    className="text-accent hover:underline text-left"
+                                >
+                                    {law.state}
+                                </button>
                             </td>
                             {visibleColumns.map(col => (
-                                <td key={col.key as string} className={`px-4 py-3 text-gray-800 ${col.widthClass} ${col.isLongText ? 'text-left align-top whitespace-pre-wrap' : 'text-center'}`}>
+                                <td key={col.key as string} className={`px-4 py-3 text-text-primary ${col.widthClass} ${col.isLongText ? 'text-left align-top whitespace-pre-wrap' : 'text-center'}`}>
                                     {col.render ? col.render(law) : String(law[col.key as keyof StateLaw] ?? 'N/A')}
                                 </td>
                             ))}

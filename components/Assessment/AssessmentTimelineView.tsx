@@ -98,14 +98,14 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
         <div className="space-y-4 printable-content">
             <div className="flex justify-between items-center no-print">
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <div className="flex items-center"><div className="w-4 h-4 bg-blue-500 mr-2 rounded-sm"></div>Individual</div>
-                    <div className="flex items-center"><div className="w-4 h-4 bg-green-500 mr-2 rounded-sm"></div>Attorney General</div>
-                    <div className="flex items-center"><div className="w-4 h-4 bg-orange-500 mr-2 rounded-sm"></div>CRA</div>
+                    <div className="flex items-center"><div className="w-4 h-4 bg-accent mr-2 rounded-sm"></div>Individual</div>
+                    <div className="flex items-center"><div className="w-4 h-4 bg-text-secondary mr-2 rounded-sm"></div>Attorney General</div>
+                    <div className="flex items-center"><div className="w-4 h-4 bg-text-secondary/70 mr-2 rounded-sm"></div>CRA</div>
                     <div className="flex items-center"><span className="text-lg mr-1">🔥</span>Critical Deadline</div>
                 </div>
                 <button 
                     onClick={handlePrint}
-                    className="px-4 py-2 bg-brand-secondary text-white font-semibold rounded-md hover:bg-brand-primary transition flex items-center space-x-2"
+                    className="px-4 py-2 bg-accent text-white font-semibold rounded-md hover:bg-accent-hover transition flex items-center space-x-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H5zm3 1a1 1 0 000 2h2a1 1 0 100-2H8zM5 12a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
@@ -115,7 +115,7 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
                 </button>
             </div>
             
-            <div className="border border-gray-200 rounded-lg bg-white p-4">
+            <div className="border border-border-light rounded-lg bg-surface-light p-4">
                  {/* Timeline Header */}
                 <div className="flex items-center border-b-2 border-gray-300 pb-2">
                     <div className="w-40 font-semibold text-text-primary pr-2">Jurisdiction</div>
@@ -136,14 +136,14 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
                     {timelineData.map(data => (
                         <div key={data.stateCode} className="flex items-center text-sm">
                             <div className="w-40 font-medium text-text-primary pr-2 truncate">
-                                <button onClick={() => onViewSummary(data.stateCode)} className="text-brand-secondary hover:underline text-left" title={data.stateName}>
+                                <button onClick={() => onViewSummary(data.stateCode)} className="text-accent hover:underline text-left" title={data.stateName}>
                                     {data.stateName}
                                 </button>
                             </div>
                             <div className="flex-1 h-12 relative bg-gray-100 rounded">
                                 {data.individual.required && data.individual.days !== null && (
                                     <div 
-                                        className="absolute top-1 left-0 h-4 bg-blue-500 rounded-sm flex items-center px-2 text-white text-xs font-semibold"
+                                        className="absolute top-1 left-0 h-4 bg-accent rounded-sm flex items-center px-2 text-white text-xs font-semibold"
                                         style={{ width: `${Math.max(2, (data.individual.days / maxDays) * 100)}%`}}
                                         title={`Individual: ${data.individual.days} days`}
                                     >
@@ -153,7 +153,7 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
                                 )}
                                 {data.ag.required && data.ag.days !== null && (
                                     <div 
-                                        className="absolute top-6 left-0 h-4 bg-green-500 rounded-sm flex items-center px-2 text-white text-xs font-semibold"
+                                        className="absolute top-6 left-0 h-4 bg-text-secondary rounded-sm flex items-center px-2 text-white text-xs font-semibold"
                                         style={{ width: `${Math.max(2, (data.ag.days / maxDays) * 100)}%`}}
                                         title={`AG: ${data.ag.days} days`}
                                     >
@@ -163,7 +163,7 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
                                 )}
                                 {data.cra.required && data.cra.days !== null && (
                                      <div 
-                                        className="absolute top-11 left-0 h-4 bg-orange-500 rounded-sm flex items-center px-2 text-white text-xs font-semibold"
+                                        className="absolute top-11 left-0 h-4 bg-text-secondary/70 rounded-sm flex items-center px-2 text-white text-xs font-semibold"
                                         style={{ width: `${Math.max(2, (data.cra.days / maxDays) * 100)}%`}}
                                         title={`CRA: ${data.cra.days} days`}
                                     >

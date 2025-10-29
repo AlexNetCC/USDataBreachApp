@@ -25,11 +25,11 @@ const ResultIndicator: React.FC<{ result: 'Yes' | 'No' | 'Conditional' }> = ({ r
       break;
     case 'No':
       text = 'Not Required';
-      colorClasses = 'bg-green-100 text-green-700';
+      colorClasses = 'bg-gray-200 text-gray-700';
       break;
     case 'Conditional':
       text = 'Conditional';
-      colorClasses = 'bg-yellow-200 text-yellow-800';
+      colorClasses = 'bg-blue-100 text-blue-800';
       break;
     default:
       return null;
@@ -58,16 +58,16 @@ const DeadlineDisplay: React.FC<{ discoveryDate: string; timeline: string }> = (
     const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    let colorClass = 'text-green-600';
+    let colorClass = 'text-gray-600';
     if (diffDays <= 7) {
         colorClass = 'text-red-600 font-bold';
     } else if (diffDays <= 14) {
-        colorClass = 'text-yellow-600 font-semibold';
+        colorClass = 'text-orange-600 font-semibold';
     }
 
     return (
         <div className="text-xs">
-            <p className="font-semibold text-gray-800">{deadline.toLocaleDateString()}</p>
+            <p className="font-semibold text-text-primary">{deadline.toLocaleDateString()}</p>
             <p className={colorClass}>
                 {diffDays >= 0 ? `in ${diffDays} days` : `${Math.abs(diffDays)} days ago`}
             </p>
@@ -84,7 +84,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
     <div className="overflow-x-auto">
         <table className="w-full min-w-[1200px] border-collapse text-left">
           <thead>
-            <tr>
+            <tr className="border-b border-border-light">
               <th className="p-4 font-semibold text-text-primary w-[12%]">Jurisdiction</th>
               <th className="p-4 font-semibold text-text-primary w-[8%]">Affected</th>
               <th className="p-4 font-semibold text-text-primary w-[20%]">Individual Notification</th>
@@ -96,9 +96,9 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
           </thead>
           <tbody>
             {results.map(res => (
-              <tr key={res.stateCode} className="border-t border-border-color">
+              <tr key={res.stateCode} className="border-t border-border-light">
                 <td className="p-4 align-top">
-                    <button onClick={() => onViewSummary(res.stateCode)} className="font-bold text-brand-secondary hover:underline cursor-pointer text-left">
+                    <button onClick={() => onViewSummary(res.stateCode)} className="font-bold text-accent hover:underline cursor-pointer text-left">
                         {res.law.state}
                     </button>
                 </td>
@@ -106,10 +106,10 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                 <td className="p-4 align-top">
                   <div>
                     <ResultIndicator result={res.individualNotification.required} />
-                    <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{res.individualNotification.reason}</p>
+                    <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">{res.individualNotification.reason}</p>
                     {res.individualNotification.required !== 'No' && (
-                       <p className="text-xs text-gray-600 mt-1">
-                         <span className="font-semibold text-gray-800">Timeline:</span> {res.individualNotification.timeline}
+                       <p className="text-xs text-text-secondary mt-1">
+                         <span className="font-semibold text-text-primary">Timeline:</span> {res.individualNotification.timeline}
                        </p>
                     )}
                   </div>
@@ -120,10 +120,10 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                 <td className="p-4 align-top">
                    <div>
                      <ResultIndicator result={res.agNotification.required} />
-                     <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{res.agNotification.reason}</p>
+                     <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">{res.agNotification.reason}</p>
                      {res.agNotification.required !== 'No' && (
-                       <p className="text-xs text-gray-600 mt-1">
-                         <span className="font-semibold text-gray-800">Timeline:</span> {res.agNotification.timeline}
+                       <p className="text-xs text-text-secondary mt-1">
+                         <span className="font-semibold text-text-primary">Timeline:</span> {res.agNotification.timeline}
                        </p>
                     )}
                    </div>
@@ -134,7 +134,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                 <td className="p-4 align-top">
                   <div>
                     <ResultIndicator result={res.craNotification.required} />
-                    <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{res.craNotification.reason}</p>
+                    <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">{res.craNotification.reason}</p>
                   </div>
                 </td>
               </tr>
@@ -145,55 +145,55 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
   );
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg border-2 border-dashed border-blue-300">
-      <div className="flex flex-wrap justify-between items-start mb-6 pb-4 border-b border-border-color gap-4">
+    <div className="bg-surface-light p-6 sm:p-8 rounded-lg shadow-lg border border-border-light">
+      <div className="flex flex-wrap justify-between items-start mb-6 pb-4 border-b border-border-light gap-4">
         <div>
             <h2 className="text-3xl font-bold font-display text-text-primary">Breach Assessment Results</h2>
             <p className="text-lg text-text-secondary mt-1">Summary of likely notification obligations based on your input.</p>
         </div>
         <div className="flex items-start gap-4">
             <div>
-              <label htmlFor="discovery-date" className="block text-sm font-medium text-gray-700 mb-1">Breach Discovery Date</label>
+              <label htmlFor="discovery-date" className="block text-sm font-medium text-text-primary mb-1">Breach Discovery Date</label>
               <input 
                 type="date"
                 id="discovery-date"
                 value={discoveryDate}
                 onChange={(e) => setDiscoveryDate(e.target.value)}
-                className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-accent focus:border-brand-accent bg-white text-gray-900"
+                className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent bg-surface-light text-text-primary"
               />
             </div>
             <button
               onClick={onRestart}
-              className="px-4 py-2 bg-white border border-border-color text-text-primary font-semibold rounded-md hover:bg-gray-100 transition whitespace-nowrap self-end"
+              className="px-4 py-2 bg-surface-light border border-border-light text-text-primary font-semibold rounded-md hover:bg-gray-100 transition whitespace-nowrap self-end"
             >
-              Start New Assessment
+              Back to Assessments
             </button>
         </div>
       </div>
 
       <div className="flex items-center justify-start mb-4">
-        <div className="flex items-center space-x-1 bg-gray-200 p-1 rounded-lg">
+        <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
            <button
              onClick={() => setView('dashboard')}
-             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'dashboard' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-600 hover:bg-gray-300/50'}`}
+             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'dashboard' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
            >
              Dashboard
            </button>
            <button
              onClick={() => setView('summary')}
-             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'summary' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-600 hover:bg-gray-300/50'}`}
+             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'summary' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
            >
              Summary View
            </button>
            <button
              onClick={() => setView('chart')}
-             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'chart' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-600 hover:bg-gray-300/50'}`}
+             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'chart' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
            >
              Chart View
            </button>
            <button
              onClick={() => setView('timeline')}
-             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'timeline' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-600 hover:bg-gray-300/50'}`}
+             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'timeline' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
            >
              Timeline View
            </button>
@@ -205,7 +205,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
        view === 'chart' ? <AssessmentChartView results={results} discoveryDate={discoveryDate} assessmentData={assessmentData} onViewSummary={onViewSummary} /> : 
        <AssessmentTimelineView results={results} discoveryDate={discoveryDate} onViewSummary={onViewSummary} />}
       
-       <div className="mt-6 p-4 bg-gray-100 rounded-md text-sm text-gray-600">
+       <div className="mt-6 p-4 bg-gray-100 rounded-md text-sm text-gray-600 border border-border-light">
         <strong>Disclaimer:</strong> This tool provides a high-level, preliminary assessment based on the provided data and should not be considered legal advice. Always consult with qualified legal counsel and review the full statutes for definitive guidance.
       </div>
     </div>

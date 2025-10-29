@@ -24,7 +24,7 @@ const AssessmentChartView: React.FC<AssessmentChartViewProps> = ({ results, disc
         if (status === 'Yes' || status === 'Conditional' || status === true) {
             return 'text-red-600';
         }
-        return 'text-green-600';
+        return 'text-gray-600';
     };
     
     const formatBoolean = (status: 'Yes' | 'No' | 'Conditional') => {
@@ -131,9 +131,9 @@ const AssessmentChartView: React.FC<AssessmentChartViewProps> = ({ results, disc
 
   return (
     <div className="overflow-x-auto printable-content">
-        <div className="border border-gray-300">
+        <div className="border border-border-light">
             <table className="w-full min-w-[1400px] border-collapse text-sm">
-                <thead className="bg-gray-200 text-left font-bold text-gray-700 select-none">
+                <thead className="bg-gray-200 text-left font-bold text-text-primary select-none">
                     <tr>
                         <SortableHeader aKey="state" label="State" />
                         <SortableHeader aKey="affectedCount" label="Affected" className="text-center" />
@@ -146,40 +146,40 @@ const AssessmentChartView: React.FC<AssessmentChartViewProps> = ({ results, disc
                         <SortableHeader aKey="craThreshold" label="CRA Threshold" className="text-center" />
                     </tr>
                 </thead>
-                <tbody className="bg-yellow-100/60 text-gray-800">
+                <tbody className="bg-accent/5 text-text-primary">
                     {sortedResults.map((res) => {
                         const indStatus = res.individualNotification.required;
 
                         return (
                             <tr key={res.stateCode}>
-                                <td className="p-2 border border-gray-300 font-semibold">
-                                    <button onClick={() => onViewSummary(res.stateCode)} className="text-brand-secondary hover:underline text-left">
+                                <td className="p-2 border border-border-light font-semibold">
+                                    <button onClick={() => onViewSummary(res.stateCode)} className="text-accent hover:underline text-left">
                                         {res.law.state}
                                     </button>
                                 </td>
-                                <td className="p-2 border border-gray-300 text-center">{res.affectedCount}</td>
-                                <td className={`p-2 border border-gray-300 text-center font-bold ${getStatusClass(indStatus)}`}>
+                                <td className="p-2 border border-border-light text-center">{res.affectedCount}</td>
+                                <td className={`p-2 border border-border-light text-center font-bold ${getStatusClass(indStatus)}`}>
                                     {indStatus.toUpperCase()}
                                 </td>
-                                <td className="p-2 border border-gray-300 text-center">
+                                <td className="p-2 border border-border-light text-center">
                                     {indStatus !== 'No' ? res.individualNotification.timeline : 'N/A'}
                                 </td>
-                                <td className={`p-2 border border-gray-300 text-center font-bold ${getStatusClass(res.agNotification.required === 'Yes')}`}>
+                                <td className={`p-2 border border-border-light text-center font-bold ${getStatusClass(res.agNotification.required === 'Yes')}`}>
                                     {formatBoolean(res.agNotification.required)}
                                 </td>
-                                <td className="p-2 border border-gray-300 text-center">{res.law.agNotificationThreshold ?? 'N/A'}</td>
-                                <td className="p-2 border border-gray-300 text-center">
+                                <td className="p-2 border border-border-light text-center">{res.law.agNotificationThreshold ?? 'N/A'}</td>
+                                <td className="p-2 border border-border-light text-center">
                                     {res.agNotification.required === 'Yes' ? res.agNotification.timeline : 'N/A'}
                                 </td>
-                                <td className={`p-2 border border-gray-300 text-center font-bold ${getStatusClass(res.craNotification.required === 'Yes')}`}>
+                                <td className={`p-2 border border-border-light text-center font-bold ${getStatusClass(res.craNotification.required === 'Yes')}`}>
                                     {formatBooleanStrict(res.craNotification.required)}
                                 </td>
-                                <td className="p-2 border border-gray-300 text-center">{res.law.craNotificationThreshold ?? 'N/A'}</td>
+                                <td className="p-2 border border-border-light text-center">{res.law.craNotificationThreshold ?? 'N/A'}</td>
                             </tr>
                         );
                     })}
                 </tbody>
-                <tfoot className="bg-gray-200 font-bold text-gray-800">
+                <tfoot className="bg-gray-200 font-bold text-text-primary">
                     <tr>
                         <td className="p-2 border border-gray-300">TOTAL</td>
                         <td className="p-2 border border-gray-300 text-center">{totalAffected.toLocaleString()}</td>

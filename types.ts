@@ -35,6 +35,14 @@ export interface AssessmentData {
   lowRiskOfHarmConsidered: boolean;
 }
 
+export interface SavedAssessment {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastModified: string;
+  data: AssessmentData;
+}
+
 export interface AssessmentResult {
   stateCode: string;
   law: StateLaw;

@@ -12,7 +12,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     
     // Headers
     html = html.replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold font-display mt-6 mb-3">$1</h1>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-semibold font-display mt-5 mb-2 border-b border-border-color pb-1">$1</h2>');
+    html = html.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-semibold font-display mt-5 mb-2 border-b border-border-light pb-1">$1</h2>');
     html = html.replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold font-display mt-4 mb-1">$1</h3>');
     
     // Bold
@@ -25,7 +25,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     html = html.replace(/<\/li>(?!<li)/g, '</li></ul>');
 
     // Links
-     html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-brand-secondary hover:underline">$1</a>');
+     html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">$1</a>');
 
     // Code
     html = html.replace(/`(.*?)`/g, '<code class="bg-gray-200 text-sm rounded px-1 py-0.5 font-mono">$1</code>');

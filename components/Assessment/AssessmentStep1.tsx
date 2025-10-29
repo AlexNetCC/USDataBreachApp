@@ -128,14 +128,14 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
       }
     >
         <div className="space-y-6">
-            <details className="group border rounded-md">
+            <details className="group border rounded-md border-border-light">
                 <summary className="list-none flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50">
                     <span className="font-semibold text-text-primary">Quick Add from Spreadsheet</span>
                     <svg className="w-5 h-5 text-gray-500 transition-transform duration-200 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </summary>
-                <div className="p-4 border-t bg-gray-50/50">
+                <div className="p-4 border-t border-border-light bg-gray-50/50">
                     <p className="text-sm text-text-secondary mb-2">
                         Paste two-column data here. Each line should contain the jurisdiction name or abbreviation, followed by a comma, tab, or pipe (|), then the count.
                     </p>
@@ -143,11 +143,11 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
                         value={pastedData}
                         onChange={(e) => setPastedData(e.target.value)}
                         placeholder={`e.g.\nCA, 546\nFlorida | 3927\nTexas   592`}
-                        className="w-full p-2 border border-border-color rounded-md focus:ring-2 focus:ring-brand-accent focus:border-brand-accent transition bg-white text-gray-900 font-mono text-sm"
+                        className="w-full p-2 border border-border-light rounded-md focus:ring-2 focus:ring-accent focus:border-accent transition bg-surface-light text-text-primary font-mono text-sm"
                         rows={5}
                     />
                     <div className="mt-2 flex justify-end">
-                        <button onClick={handleParsePastedData} disabled={!pastedData} className="px-4 py-2 bg-brand-accent text-white text-sm font-semibold rounded-md hover:bg-brand-secondary transition disabled:bg-gray-300">
+                        <button onClick={handleParsePastedData} disabled={!pastedData} className="px-4 py-2 bg-accent text-white text-sm font-semibold rounded-md hover:bg-accent-hover transition disabled:bg-accent/50 disabled:cursor-not-allowed">
                             Process Pasted Data
                         </button>
                     </div>
@@ -163,14 +163,14 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
                         placeholder="Type to search for a state or territory..."
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-border-color rounded-md focus:ring-2 focus:ring-brand-accent focus:border-brand-accent transition bg-white text-gray-900"
+                        className="w-full pl-10 pr-4 py-2 border border-border-light rounded-md focus:ring-2 focus:ring-accent focus:border-accent transition bg-surface-light text-text-primary"
                     />
                      <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     {searchTerm && (
                         <div className="relative">
-                            <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-b-md mt-0 max-h-60 overflow-y-auto shadow-lg">
+                            <ul className="absolute z-20 w-full bg-surface-light border border-gray-300 rounded-b-md mt-0 max-h-60 overflow-y-auto shadow-lg">
                                 {filteredLawsForAutocomplete.length > 0 ? (
                                     filteredLawsForAutocomplete.map(law => (
                                         <li key={law.stateCode} onClick={() => handleAddState(law.stateCode)} className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-text-primary">
@@ -187,9 +187,9 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
             </div>
             
             <div className="mt-6">
-                <h3 className="text-lg font-semibold text-text-primary border-b border-border-color pb-2 mb-3">Affected Jurisdictions ({sortedAddedStateLaws.length})</h3>
+                <h3 className="text-lg font-semibold text-text-primary border-b border-border-light pb-2 mb-3">Affected Jurisdictions ({sortedAddedStateLaws.length})</h3>
                 {sortedAddedStateLaws.length === 0 ? (
-                    <div className="text-center text-text-secondary py-6 bg-gray-50 rounded-md">
+                    <div className="text-center text-text-secondary py-6 bg-gray-50 rounded-md border border-border-light">
                         <p>No jurisdictions added yet.</p>
                         <p className="text-sm">Use the search bar or paste from a spreadsheet to begin.</p>
                     </div>
@@ -205,7 +205,7 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
                                     onChange={e => handleCountChange(law.stateCode, e.target.value)}
                                     placeholder="Count"
                                     min="1"
-                                    className="w-32 p-2 border border-border-color rounded-md bg-white text-gray-900 text-right focus:ring-1 focus:ring-brand-accent"
+                                    className="w-32 p-2 border border-border-light rounded-md bg-surface-light text-text-primary text-right focus:ring-1 focus:ring-accent"
                                 />
                                 <button onClick={() => handleRemoveState(law.stateCode)} className="text-gray-400 hover:text-red-600 p-1 rounded-full transition-colors" aria-label={`Remove ${law.state}`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
