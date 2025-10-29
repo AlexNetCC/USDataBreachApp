@@ -192,6 +192,7 @@ tags:
   - **Original Legislation:** Alabama S.B. 318 (signed into law March 28, 2018)
   - **Effective Date:** June 1, 2018
   - **Last Verified:** September 2025
+  - **AlexisCool**
 
 ## Application & Covered Entities
 Applies to any person or commercial entity that acquires or uses sensitive personally identifying information, including both private and governmental entities.
