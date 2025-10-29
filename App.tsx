@@ -7,8 +7,10 @@ import ComparisonView from './components/ComparisonView';
 import Welcome from './components/Welcome';
 import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWizard';
 import MatrixView from './components/MatrixView';
+import ErrorBoundary from './components/ErrorBoundary';
 import { createLawIndex } from './services/dataIndexService';
 import { loadAppState, saveAppState } from './services/stateService';
+import { highlightSearchTerm } from './utils/searchHighlight';
 
 const initialFilters: Filters = {
   timelineMaxDays: null,
@@ -31,6 +33,10 @@ const App: React.FC = () => {
   const [lawIndex, setLawIndex] = useState<LawIndex | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState<{stage: string, percent: number}>({
+    stage: 'Fetching law data...',
+    percent: 0
+  });
 
   const [appState, setAppState] = useState<AppState>(() => {
     return loadAppState() || defaultAppState;
@@ -43,14 +49,20 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchLaws = async () => {
       try {
+        setLoadingProgress({ stage: 'Fetching law data...', percent: 25 });
         const res = await fetch('laws.json');
         if (!res.ok) {
           throw new Error(`Failed to fetch laws.json: ${res.statusText}`);
         }
+
+        setLoadingProgress({ stage: 'Parsing jurisdictions...', percent: 50 });
         const laws: StateLaw[] = await res.json();
-        
+
+        setLoadingProgress({ stage: 'Building search index...', percent: 75 });
         setAllLaws(laws.sort((a, b) => a.state.localeCompare(b.state)));
         setLawIndex(createLawIndex(laws));
+
+        setLoadingProgress({ stage: 'Ready!', percent: 100 });
       } catch (e: any) {
         setError(`Failed to load law files: ${e.message}`);
       } finally {
@@ -152,8 +164,7 @@ const App: React.FC = () => {
             if (start > 0) rawSnippet = '...' + rawSnippet;
             if (end < law.markdownContent.length) rawSnippet += '...';
 
-            const regex = new RegExp(appState.searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
-            snippet = rawSnippet.replace(regex, (match) => `<mark class="bg-accent/20 text-text-primary px-1 rounded">${match}</mark>`);
+            snippet = highlightSearchTerm(rawSnippet, appState.searchTerm);
           }
           searchResults.push({ ...law, searchSnippet: snippet || undefined });
         }
@@ -181,7 +192,27 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading || !lawIndex) {
-      return <div className="flex justify-center items-center h-screen-minus-header"><p>Loading and parsing 52 jurisdiction summaries...</p></div>;
+      return (
+        <div className="flex flex-col justify-center items-center h-screen-minus-header">
+          <div className="w-64">
+            <div className="mb-4">
+              <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+            <p className="text-center text-text-primary font-semibold mb-2">
+              {loadingProgress.stage}
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-accent h-2 rounded-full transition-all duration-300"
+                style={{ width: `${loadingProgress.percent}%` }}
+              />
+            </div>
+            <p className="text-center text-text-secondary text-sm mt-2">
+              {loadingProgress.percent}%
+            </p>
+          </div>
+        </div>
+      );
     }
     if (error) {
       return <div className="flex justify-center items-center h-screen-minus-header"><p className="text-red-600">{error}</p></div>;
@@ -254,8 +285,10 @@ const App: React.FC = () => {
           </nav>
         </div>
       </header>
-      
-      {renderContent()}
+
+      <ErrorBoundary>
+        {renderContent()}
+      </ErrorBoundary>
     </div>
   );
 };

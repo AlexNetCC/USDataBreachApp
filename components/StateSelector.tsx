@@ -66,9 +66,18 @@ const StateSelector: React.FC<StateSelectorProps> = ({
                 setIsFilterOpen(false);
             }
         };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isFilterOpen) {
+                setIsFilterOpen(false);
+            }
+        };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isFilterOpen]);
 
   return (
     <div className="h-full flex flex-col">
@@ -89,9 +98,16 @@ const StateSelector: React.FC<StateSelectorProps> = ({
         
         <div className="flex justify-between items-center">
             <div className="relative" ref={filterRef}>
-                <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center justify-between p-2 -mx-2 rounded-md cursor-pointer hover:bg-white/10">
+                <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    onKeyDown={(e) => e.key === 'Enter' && setIsFilterOpen(!isFilterOpen)}
+                    className="flex items-center justify-between p-2 -mx-2 rounded-md cursor-pointer hover:bg-white/10"
+                    aria-expanded={isFilterOpen}
+                    aria-haspopup="true"
+                    aria-label="Advanced filter options"
+                >
                     <span className="font-semibold text-on-dark">Advanced Filters</span>
-                    <svg className={`w-5 h-5 text-on-dark-secondary transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-5 h-5 text-on-dark-secondary transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
@@ -177,6 +193,8 @@ const StateSelector: React.FC<StateSelectorProps> = ({
                       checked={selectedStateCodes.includes(law.stateCode)}
                       onChange={() => onSelectState(law.stateCode)}
                       className="h-5 w-5 rounded border-gray-600 text-accent focus:ring-accent bg-transparent"
+                      aria-label={`Select ${law.state} for comparison`}
+                      id={`checkbox-${law.stateCode}`}
                     />
                     <span className={`ml-3 font-semibold ${selectedStateCodes.includes(law.stateCode) ? 'text-accent' : 'text-on-dark'}`}>
                       {law.state}

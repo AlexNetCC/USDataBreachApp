@@ -9,7 +9,7 @@ interface StoredState {
   timestamp: number;
 }
 
-export const saveAppState = (state: AppState): void => {
+export const saveAppState = (state: AppState): boolean => {
   try {
     const stateToStore: StoredState = {
       version: STORAGE_VERSION,
@@ -17,8 +17,15 @@ export const saveAppState = (state: AppState): void => {
       timestamp: Date.now(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToStore));
-  } catch (e) {
-    console.warn('Failed to save app state to localStorage:', e);
+    return true;
+  } catch (e: any) {
+    if (e.name === 'QuotaExceededError') {
+      console.error('localStorage quota exceeded. Unable to save app state.');
+      // Could alert user here, but keeping it silent to avoid interrupting workflow
+    } else {
+      console.warn('Failed to save app state to localStorage:', e);
+    }
+    return false;
   }
 };
 
