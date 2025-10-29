@@ -6,7 +6,7 @@ if (!process.env.API_KEY) {
   console.warn("API_KEY environment variable not set. AI features will be disabled.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
 const formatLawForPrompt = (law: StateLaw): string => {
   let structuredData = '';
@@ -56,10 +56,10 @@ ${piiSection}
 
 
 export const getLawSummaryStream = async (law: StateLaw, question: string) => {
-  if (!process.env.API_KEY) {
+  if (!ai) {
     throw new Error("Gemini API key is not configured.");
   }
-  
+
   const lawText = formatLawForPrompt(law);
 
   const prompt = `
@@ -85,7 +85,7 @@ Based *only* on the information above, please answer the following question: "${
 
 
 export const getGlobalLawSummaryStream = async (laws: StateLaw[], question: string) => {
-  if (!process.env.API_KEY) {
+  if (!ai) {
     throw new Error("Gemini API key is not configured.");
   }
 
@@ -105,7 +105,7 @@ ${allLawsText}
 
 Based *only* on the information above, please answer the following question: "${question}"
   `;
-  
+
   try {
     const stream = await ai.models.generateContentStream({
       model: 'gemini-2.5-flash',
