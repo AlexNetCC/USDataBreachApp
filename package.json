@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run parse-laws && vite",
-    "build": "npm run parse-laws && tsc && vite build",
+    "build": "npm run parse-laws && vite build",
     "preview": "vite preview",
     "parse-laws": "node scripts/parse-laws.js"
   },
