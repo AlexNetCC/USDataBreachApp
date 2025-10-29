@@ -92,7 +92,8 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
   }, [searchTerm, laws, addedStateCodes]);
 
   const handleSubmit = () => {
-    const numericCounts = Object.entries(counts).reduce((acc, [key, val]) => {
+    // FIX: Explicitly type `[key, val]` to prevent `val` from being inferred as `unknown`.
+    const numericCounts = Object.entries(counts).reduce((acc, [key, val]: [string, string]) => {
       const num = parseInt(val, 10);
       if (!isNaN(num) && num > 0) {
         acc[key] = num;
@@ -102,7 +103,8 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
     onNext(numericCounts);
   };
   
-  const totalAffected = Object.values(counts).reduce((sum, val) => sum + (parseInt(val, 10) || 0), 0);
+  // FIX: Explicitly type `sum` and `val` to prevent type inference issues.
+  const totalAffected = Object.values(counts).reduce((sum: number, val: string) => sum + (parseInt(val, 10) || 0), 0);
   const statesWithResidents = Object.keys(counts).filter(key => (parseInt(counts[key], 10) || 0) > 0).length;
   
   const sortedAddedStateLaws = useMemo(() => {

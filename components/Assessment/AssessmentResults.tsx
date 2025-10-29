@@ -37,7 +37,11 @@ const ResultIndicator: React.FC<{ result: 'Yes' | 'No' | 'Conditional' }> = ({ r
   return <span className={`${baseClasses} ${colorClasses}`}>{text}</span>;
 };
 
-const DeadlineDisplay: React.FC<{ discoveryDate: string; timeline: string }> = ({ discoveryDate, timeline }) => {
+const DeadlineDisplay: React.FC<{ discoveryDate: string; timeline: string; status: 'Yes' | 'No' | 'Conditional' }> = ({ discoveryDate, timeline, status }) => {
+    if (status !== 'Yes') {
+        return null;
+    }
+    
     if (!discoveryDate || !timeline || timeline.toLowerCase().includes('asap') || timeline.toLowerCase().includes('concurrent') || !timeline.match(/(\d+)\s*days/)) {
         return <span className="text-xs text-gray-500 italic">{timeline.includes('days') ? 'Enter date' : 'N/A'}</span>;
     }
@@ -87,11 +91,12 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
             <tr className="border-b border-border-light">
               <th className="p-4 font-semibold text-text-primary w-[12%]">Jurisdiction</th>
               <th className="p-4 font-semibold text-text-primary w-[8%]">Affected</th>
-              <th className="p-4 font-semibold text-text-primary w-[20%]">Individual Notification</th>
+              <th className="p-4 font-semibold text-text-primary w-[18%]">Individual Notification</th>
               <th className="p-4 font-semibold text-text-primary w-[10%]">Ind. Deadline</th>
-              <th className="p-4 font-semibold text-text-primary w-[20%]">AG Notification</th>
+              <th className="p-4 font-semibold text-text-primary w-[18%]">AG Notification</th>
               <th className="p-4 font-semibold text-text-primary w-[10%]">AG Deadline</th>
-              <th className="p-4 font-semibold text-text-primary w-[20%]">CRA Notification</th>
+              <th className="p-4 font-semibold text-text-primary w-[14%]">CRA Notification</th>
+              <th className="p-4 font-semibold text-text-primary w-[10%]">CRA Deadline</th>
             </tr>
           </thead>
           <tbody>
@@ -115,7 +120,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                   </div>
                 </td>
                  <td className="p-4 align-top">
-                    {res.individualNotification.required !== 'No' && <DeadlineDisplay discoveryDate={discoveryDate} timeline={res.individualNotification.timeline} />}
+                    <DeadlineDisplay discoveryDate={discoveryDate} timeline={res.individualNotification.timeline} status={res.individualNotification.required} />
                 </td>
                 <td className="p-4 align-top">
                    <div>
@@ -129,13 +134,21 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                    </div>
                 </td>
                 <td className="p-4 align-top">
-                    {res.agNotification.required !== 'No' && <DeadlineDisplay discoveryDate={discoveryDate} timeline={res.agNotification.timeline} />}
+                    <DeadlineDisplay discoveryDate={discoveryDate} timeline={res.agNotification.timeline} status={res.agNotification.required} />
                 </td>
                 <td className="p-4 align-top">
                   <div>
                     <ResultIndicator result={res.craNotification.required} />
                     <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">{res.craNotification.reason}</p>
+                    {res.craNotification.required !== 'No' && (
+                       <p className="text-xs text-text-secondary mt-1">
+                         <span className="font-semibold text-text-primary">Timeline:</span> {res.craNotification.timeline}
+                       </p>
+                    )}
                   </div>
+                </td>
+                <td className="p-4 align-top">
+                    <DeadlineDisplay discoveryDate={discoveryDate} timeline={res.craNotification.timeline} status={res.craNotification.required} />
                 </td>
               </tr>
             ))}
