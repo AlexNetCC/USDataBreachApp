@@ -82,10 +82,6 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
 
     const startDate = new Date(discoveryDate + 'T00:00:00');
 
-    const handlePrint = () => {
-        window.print();
-    }
-
     if (timelineData.length === 0) {
         return (
             <div className="text-center p-8 bg-gray-50 rounded-lg">
@@ -103,16 +99,6 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
                     <div className="flex items-center"><div className="w-4 h-4 bg-text-secondary/70 mr-2 rounded-sm"></div>CRA</div>
                     <div className="flex items-center"><span className="text-lg mr-1">🔥</span>Critical Deadline</div>
                 </div>
-                <button 
-                    onClick={handlePrint}
-                    className="px-4 py-2 bg-accent text-white font-semibold rounded-md hover:bg-accent-hover transition flex items-center space-x-2"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H5zm3 1a1 1 0 000 2h2a1 1 0 100-2H8zM5 12a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
-                        <path d="M4 8a1 1 0 100 2h12a1 1 0 100-2H4z" />
-                    </svg>
-                    <span>Print Timeline</span>
-                </button>
             </div>
             
             <div className="border border-border-light rounded-lg bg-surface-light p-4">

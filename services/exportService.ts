@@ -86,6 +86,10 @@ export const generateAssessmentReport = (
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Breach Assessment Report</title>
     <style>
+        @page {
+            margin: 0.5in;
+            size: letter;
+        }
         body {
             font-family: 'Calibri', 'Arial', sans-serif;
             line-height: 1.6;
@@ -263,11 +267,25 @@ export const generateAssessmentReport = (
             text-align: center;
         }
         @media print {
-            body { margin: 0; padding: 0; }
-            .header { margin: 0; }
-            .confidential { margin: 0; }
-            .no-print { display: none; }
-            .metric-card, .requirement-item, .requirement-box {
+            @page {
+                margin: 0.5in;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .header {
+                margin: 0;
+            }
+            .confidential {
+                margin: 0;
+            }
+            .no-print {
+                display: none;
+            }
+            .metric-card,
+            .requirement-item,
+            .requirement-box {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
@@ -407,123 +425,116 @@ export const generateMultiStateComparisonReport = (
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-State Data Breach Law Comparison</title>
     <style>
+        @page {
+            margin: 0.5in;
+            size: letter;
+        }
         body {
-            font-family: 'Calibri', 'Arial', sans-serif;
-            line-height: 1.5;
-            color: #1a1a1a;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #333;
             max-width: 11in;
             margin: 0 auto;
             padding: 0.5in;
             background: white;
         }
         .header {
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-            color: white;
-            padding: 2rem;
-            margin: -0.5in -0.5in 2rem -0.5in;
             text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 1rem;
         }
         .confidential {
-            background: #dc2626;
-            color: white;
+            color: #e74c3c;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 14px;
             text-align: center;
-            padding: 0.5rem;
-            margin: -0.5in -0.5in 0 -0.5in;
-            letter-spacing: 2px;
+            margin-bottom: 1rem;
         }
         .branding {
-            background: #f8fafc;
-            padding: 1rem;
-            border-left: 4px solid #0891b2;
-            margin-bottom: 1.5rem;
-            font-size: 12px;
+            margin-bottom: 2rem;
         }
-        .branding h1 { margin: 0 0 0.5rem 0; font-size: 18px; color: #1e293b; }
-        .branding p { margin: 0.1rem 0; color: #64748b; }
+        .branding h1 { margin: 0; font-size: 24px; color: #2c3e50; }
+        .branding p { margin: 0.25rem 0; font-size: 14px; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            font-size: 11px;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        .comparison-table th {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .state-header {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .requirement-yes {
+            background: #d4edda;
+            color: #155724;
+        }
+        .requirement-no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .requirement-conditional {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .timeline {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .threshold {
+            font-weight: bold;
+            color: #3498db;
+        }
         .section {
             margin-bottom: 2rem;
         }
         .section h2 {
-            color: #1e293b;
-            font-size: 18px;
-            margin-bottom: 1rem;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
             padding-bottom: 0.5rem;
-            border-bottom: 2px solid #0891b2;
-        }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-            font-size: 11px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .comparison-table th {
-            background: #1e293b;
-            color: white;
-            padding: 0.75rem 0.5rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 11px;
-            border-right: 1px solid #475569;
-        }
-        .comparison-table th:last-child { border-right: none; }
-        .comparison-table td {
-            padding: 0.6rem 0.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            border-right: 1px solid #f1f5f9;
-            vertical-align: top;
-        }
-        .comparison-table td:last-child { border-right: none; }
-        .comparison-table tr:nth-child(even) {
-            background: #f8fafc;
-        }
-        .comparison-table tr:hover {
-            background: #f1f5f9;
-        }
-        .state-name {
-            font-weight: bold;
-            color: #0891b2;
-            font-size: 12px;
-        }
-        .requirement-yes {
-            background: #dcfce7;
-            color: #166534;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .requirement-no {
-            background: #f1f5f9;
-            color: #64748b;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .timeline {
-            font-weight: bold;
-            color: #dc2626;
-        }
-        .threshold {
-            font-weight: 600;
-            color: #0891b2;
+            margin-bottom: 1rem;
         }
         .footer {
             margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #e2e8f0;
-            font-size: 10px;
-            color: #94a3b8;
+            padding-top: 1rem;
+            border-top: 1px solid #bdc3c7;
+            font-size: 12px;
+            color: #6c757d;
             text-align: center;
         }
         @media print {
-            body { margin: 0; padding: 0.25in; }
-            .header { margin: 0; }
-            .confidential { margin: 0; }
-            .no-print { display: none; }
-            .comparison-table th, .requirement-yes, .requirement-no {
+            @page {
+                margin: 0.5in;
+            }
+            body {
+                margin: 0;
+                padding: 0.25in;
+            }
+            .no-print {
+                display: none;
+            }
+            .comparison-table th,
+            .requirement-yes,
+            .requirement-no,
+            .requirement-conditional {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
@@ -535,19 +546,21 @@ export const generateMultiStateComparisonReport = (
     ${options.includeConfidentialHeader ? '<div class="confidential">CONFIDENTIAL ATTORNEY-CLIENT COMMUNICATION</div>' : ''}
 
     <div class="header">
-        <h1 style="margin: 0; font-size: 32px; font-weight: bold;">Multi-State Comparison</h1>
-        <p style="margin: 0.5rem 0; font-size: 14px; opacity: 0.9;">
+        ${options.includeBranding ? `
+        <div class="branding">
+            <h1>${branding.firmName}</h1>
+            <p>Prepared by: ${branding.attorneyName}</p>
+            <p>${branding.address}</p>
+            <p>${branding.phone} | ${branding.email}</p>
+        </div>
+        ` : ''}
+
+        <h1 style="margin: 0; font-size: 28px; color: #2c3e50;">Multi-State Data Breach Law Comparison</h1>
+        <p style="margin: 0.5rem 0; font-size: 16px;">
             Comparing ${filteredLaws.length} jurisdictions: ${filteredLaws.map(l => l.state).join(', ')}
         </p>
-        ${options.includeTimestamp ? `<p style="margin: 0; font-size: 12px; opacity: 0.8;">${currentDate}</p>` : ''}
+        ${options.includeTimestamp ? `<p style="margin: 0.5rem 0; font-size: 14px; color: #6c757d;"><strong>Analysis Date:</strong> ${currentDate}</p>` : ''}
     </div>
-
-    ${options.includeBranding ? `
-    <div class="branding">
-        <h1>${branding.firmName}</h1>
-        <p>Prepared by: ${branding.attorneyName} | ${branding.phone} | ${branding.email}</p>
-    </div>
-    ` : ''}
 
     <div class="section">
         <h2>Notification Timelines</h2>
@@ -564,7 +577,7 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><span class="state-name">${law.state}</span></td>
+                        <td><strong>${law.state}</strong></td>
                         <td class="timeline">${law.individualNotificationTimelineDays > 0 ? `${law.individualNotificationTimelineDays} days` : 'ASAP'}</td>
                         <td class="timeline">${law.agNotificationTimelineDays !== null ? (law.agNotificationTimelineDays > 0 ? `${law.agNotificationTimelineDays} days` : 'Concurrent') : 'N/A'}</td>
                         <td>${law.agNotificationTimelineRelativeTo || 'Fixed'}</td>
@@ -590,7 +603,7 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><span class="state-name">${law.state}</span></td>
+                        <td><strong>${law.state}</strong></td>
                         <td class="threshold">${law.agNotificationThreshold?.toLocaleString() || 'N/A'}</td>
                         <td class="threshold">${law.craNotificationThreshold?.toLocaleString() || 'N/A'}</td>
                         <td class="threshold">${law.substituteNotificationCostTrigger > 0 ? `$${law.substituteNotificationCostTrigger.toLocaleString()}` : 'N/A'}</td>
@@ -618,12 +631,12 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><span class="state-name">${law.state}</span></td>
-                        <td><span class="requirement-${law.enforcementPrivateRightOfAction ? 'yes' : 'no'}">${law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</span></td>
-                        <td><span class="requirement-${law.exemptionEncryptionSafeHarbor ? 'yes' : 'no'}">${law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</span></td>
-                        <td><span class="requirement-${law.riskOfHarmAnalysisCanEliminateNotification ? 'yes' : 'no'}">${law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</span></td>
-                        <td><span class="requirement-${law.exemptionHipaa ? 'yes' : 'no'}">${law.exemptionHipaa ? 'Yes' : 'No'}</span></td>
-                        <td><span class="requirement-${law.exemptionGlba ? 'yes' : 'no'}">${law.exemptionGlba ? 'Yes' : 'No'}</span></td>
+                        <td><strong>${law.state}</strong></td>
+                        <td class="requirement-${law.enforcementPrivateRightOfAction ? 'yes' : 'no'}">${law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</td>
+                        <td class="requirement-${law.exemptionEncryptionSafeHarbor ? 'yes' : 'no'}">${law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</td>
+                        <td class="requirement-${law.riskOfHarmAnalysisCanEliminateNotification ? 'yes' : 'no'}">${law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</td>
+                        <td class="requirement-${law.exemptionHipaa ? 'yes' : 'no'}">${law.exemptionHipaa ? 'Yes' : 'No'}</td>
+                        <td class="requirement-${law.exemptionGlba ? 'yes' : 'no'}">${law.exemptionGlba ? 'Yes' : 'No'}</td>
                         <td class="threshold">${law.enforcementPenaltyMaximum > 0 ? `$${law.enforcementPenaltyMaximum.toLocaleString()}` : 'Not specified'}</td>
                     </tr>
                 `).join('')}
@@ -645,9 +658,9 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><span class="state-name">${law.state}</span></td>
+                        <td><strong>${law.state}</strong></td>
                         <td>${law.enforcementAuthority || 'Not specified'}</td>
-                        <td><span class="requirement-${law.enforcementAuthorityIsExclusive ? 'yes' : 'no'}">${law.enforcementAuthorityIsExclusive ? 'Yes' : 'No'}</span></td>
+                        <td class="requirement-${law.enforcementAuthorityIsExclusive ? 'yes' : 'no'}">${law.enforcementAuthorityIsExclusive ? 'Yes' : 'No'}</td>
                         <td>${law.enforcementTypeDamagesDescription || 'Not specified'}</td>
                     </tr>
                 `).join('')}
@@ -656,9 +669,9 @@ export const generateMultiStateComparisonReport = (
     </div>
 
     <div class="footer">
-        <p><strong>DISCLAIMER:</strong> This comparison is for informational purposes only and does not constitute legal advice.</p>
-        <p>Statutory requirements are subject to change. Consult with qualified legal counsel for definitive guidance.</p>
-        ${options.includeBranding ? `<p style="margin-top: 1rem;">© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>` : ''}
+        <p>This comparison is for informational purposes and does not constitute legal advice.</p>
+        <p>Statutory requirements may have changed since this analysis was generated.</p>
+        <p>© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>
     </div>
 </body>
 </html>
