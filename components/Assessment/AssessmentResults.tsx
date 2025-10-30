@@ -3,6 +3,7 @@ import { AssessmentResult, AssessmentData } from '../../types';
 import AssessmentChartView from './AssessmentChartView';
 import AssessmentCalendarView from './AssessmentCalendarView';
 import AssessmentDashboardView from './AssessmentDashboardView';
+import ExportControls from '../ExportControls';
 
 interface AssessmentResultsProps {
   results: AssessmentResult[];
@@ -167,7 +168,7 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
         <div className="flex items-start gap-4">
             <div>
               <label htmlFor="discovery-date" className="block text-sm font-medium text-text-primary mb-1">Breach Discovery Date</label>
-              <input 
+              <input
                 type="date"
                 id="discovery-date"
                 value={discoveryDate}
@@ -175,9 +176,18 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
                 className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent bg-surface-light text-text-primary"
               />
             </div>
+            <ExportControls
+              type="assessment"
+              data={{
+                assessmentData,
+                results,
+                incidentDate: discoveryDate
+              }}
+              className="no-print"
+            />
             <button
               onClick={onRestart}
-              className="px-4 py-2 bg-surface-light border border-border-light text-text-primary font-semibold rounded-md hover:bg-gray-100 transition whitespace-nowrap self-end"
+              className="px-4 py-2 bg-surface-light border border-border-light text-text-primary font-semibold rounded-md hover:bg-gray-100 transition whitespace-nowrap self-end no-print"
             >
               Back to Assessments
             </button>

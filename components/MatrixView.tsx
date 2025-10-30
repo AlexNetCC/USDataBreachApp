@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { StateLaw } from '../types';
 import { getTimelineColor, getThresholdColor, getBooleanColor } from '../utils/matrixColors';
+import MultiStateExportSelector from './MultiStateExportSelector';
 
 interface MatrixViewProps {
   laws: StateLaw[];
@@ -68,6 +69,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
   const [stateFilter, setStateFilter] = useState<ColumnFilter>({ searchTerm: '', selectedValues: new Set() });
   const [columnFilters, setColumnFilters] = useState<Map<keyof StateLaw, ColumnFilter>>(new Map());
+  const [showExportSelector, setShowExportSelector] = useState(false);
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const filterRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -440,6 +442,21 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
           </button>
         )}
 
+        {/* Export Analysis Button */}
+        <button
+          onClick={() => setShowExportSelector(!showExportSelector)}
+          className={`px-5 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-250 flex items-center select-none shadow-md border-2 ${
+            showExportSelector
+              ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+              : 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export Analysis
+        </button>
+
         {/* Customize Columns Button */}
         <details className="inline-block" ref={detailsRef}>
           <summary className="list-none px-5 py-3 bg-surface text-on-dark border-2 border-surface rounded-lg font-semibold cursor-pointer hover:bg-surface/90 hover:border-surface/90 transition-all duration-250 flex items-center select-none shadow-md">
@@ -471,6 +488,19 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
           Showing {sortedLaws.length} of {laws.length} jurisdictions
         </div>
       </div>
+
+      {/* Multi-State Export Selector */}
+      {showExportSelector && (
+        <div className="mb-6">
+          <MultiStateExportSelector
+            laws={sortedLaws}
+            onExport={(selectedStates) => {
+              console.log('Export selected states:', selectedStates);
+              setShowExportSelector(false);
+            }}
+          />
+        </div>
+      )}
 
       <div className="overflow-auto border-2 border-border-light rounded-xl shadow-card bg-surface-light" style={{ minHeight: '50vh', maxHeight: '70vh' }}>
         <table className="min-w-full border-collapse text-sm">

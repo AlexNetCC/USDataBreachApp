@@ -5,6 +5,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import InfoCard from './InfoCard';
 import BooleanIndicator from './BooleanIndicator';
 import AskAI from './AskAI';
+import CopyableProvision from './CopyableProvision';
 
 interface StateDetailViewProps {
   law: StateLaw;
@@ -36,6 +37,23 @@ const StateDetailView: React.FC<StateDetailViewProps> = ({ law }) => {
 
       {/* AI Assistant */}
       <AskAI law={law} />
+
+      {/* Copy Provisions - Compact Version */}
+      <details className="bg-accent/5 border border-accent/20 rounded-lg no-print">
+        <summary className="px-4 py-2.5 cursor-pointer hover:bg-accent/10 transition-colors list-none select-none flex items-center gap-2 text-sm font-medium text-accent">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+          </svg>
+          Copy Legal Provisions
+        </summary>
+        <div className="px-4 pb-3 pt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
+          <CopyableProvision law={law} provisionType="timeline" title="Timelines" />
+          <CopyableProvision law={law} provisionType="threshold" title="Thresholds" />
+          <CopyableProvision law={law} provisionType="exemption" title="Exemptions" />
+          <CopyableProvision law={law} provisionType="enforcement" title="Enforcement" />
+        </div>
+      </details>
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
