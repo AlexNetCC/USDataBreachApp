@@ -493,7 +493,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
       {showExportSelector && (
         <div className="mb-6">
           <MultiStateExportSelector
-            laws={laws}
+            laws={sortedLaws}
             onExport={(selectedStates) => {
               console.log('Export selected states:', selectedStates);
               setShowExportSelector(false);

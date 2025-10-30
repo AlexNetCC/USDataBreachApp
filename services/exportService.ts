@@ -36,7 +36,7 @@ const DEFAULT_BRANDING: FirmBranding = {
 };
 
 /**
- * Generates HTML for client-ready assessment reports
+ * Generates HTML for client-ready assessment reports (Executive Summary format)
  */
 export const generateAssessmentReport = (
   data: AssessmentReportData,
@@ -59,6 +59,25 @@ export const generateAssessmentReport = (
     data.assessmentData.affectedCounts[code] > 0
   );
 
+  // Calculate key metrics
+  const requireIndividual = data.results.filter(r => r.individualNotification.required === 'Yes').length;
+  const requireAG = data.results.filter(r => r.agNotification.required === 'Yes').length;
+  const requireCRA = data.results.filter(r => r.craNotification.required === 'Yes').length;
+
+  // Find earliest deadline
+  const getDeadlineDays = (timeline: string): number => {
+    const match = timeline.match(/(\d+)\s*days/);
+    return match ? parseInt(match[1]) : 999;
+  };
+
+  const earliestIndividual = Math.min(...data.results
+    .filter(r => r.individualNotification.required === 'Yes')
+    .map(r => getDeadlineDays(r.individualNotification.timeline)));
+
+  const earliestAG = Math.min(...data.results
+    .filter(r => r.agNotification.required === 'Yes')
+    .map(r => getDeadlineDays(r.agNotification.timeline)));
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -68,110 +87,191 @@ export const generateAssessmentReport = (
     <title>Data Breach Assessment Report</title>
     <style>
         body {
-            font-family: 'Times New Roman', serif;
+            font-family: 'Calibri', 'Arial', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #1a1a1a;
             max-width: 8.5in;
             margin: 0 auto;
             padding: 0.5in;
             background: white;
         }
         .header {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            color: white;
+            padding: 2rem;
+            margin: -0.5in -0.5in 2rem -0.5in;
             text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 1rem;
         }
         .confidential {
-            color: #e74c3c;
+            background: #dc2626;
+            color: white;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 11px;
             text-align: center;
-            margin-bottom: 1rem;
+            padding: 0.5rem;
+            margin: -0.5in -0.5in 0 -0.5in;
+            letter-spacing: 2px;
         }
         .branding {
+            background: #f8fafc;
+            padding: 1rem;
+            border-left: 4px solid #0891b2;
+            margin-bottom: 1.5rem;
+            font-size: 12px;
+        }
+        .branding h1 { margin: 0 0 0.5rem 0; font-size: 18px; color: #1e293b; }
+        .branding p { margin: 0.1rem 0; color: #64748b; }
+        .alert-critical {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        .branding h1 { margin: 0; font-size: 24px; color: #2c3e50; }
-        .branding p { margin: 0.25rem 0; font-size: 14px; }
+        .alert-critical h3 {
+            color: #dc2626;
+            margin: 0 0 1rem 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: #f1f5f9;
+            padding: 1.25rem;
+            border-radius: 8px;
+            text-align: center;
+            border-top: 4px solid #0891b2;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0891b2;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .requirements-summary {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .requirements-header {
+            background: #1e293b;
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+        .requirement-item {
+            padding: 1.5rem;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .requirement-item:nth-child(3n) { border-right: none; }
+        .requirement-count {
+            font-size: 36px;
+            font-weight: bold;
+            color: #dc2626;
+            display: block;
+        }
+        .requirement-label {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
         .section {
             margin-bottom: 2rem;
         }
         .section h2 {
-            color: #2c3e50;
-            border-bottom: 1px solid #bdc3c7;
+            color: #1e293b;
+            font-size: 18px;
+            margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
+            border-bottom: 2px solid #0891b2;
         }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .summary-item {
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-left: 4px solid #3498db;
-        }
-        .summary-item strong { display: block; margin-bottom: 0.25rem; }
-        .state-results {
-            margin-bottom: 1.5rem;
-        }
-        .state-card {
-            border: 1px solid #ddd;
+        .state-list {
+            background: #f8fafc;
             border-radius: 8px;
-            margin-bottom: 1rem;
-            overflow: hidden;
+            padding: 1.5rem;
         }
-        .state-header {
-            background: #34495e;
-            color: white;
+        .state-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr 1fr;
+            gap: 1rem;
             padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: start;
+        }
+        .state-row:last-child { border-bottom: none; }
+        .state-name {
             font-weight: bold;
+            color: #1e293b;
         }
-        .state-content {
-            padding: 1rem;
+        .state-count {
+            font-size: 11px;
+            color: #64748b;
         }
-        .requirement {
-            margin-bottom: 1rem;
-            padding: 0.75rem;
+        .requirement-box {
+            font-size: 12px;
+        }
+        .requirement-box.yes {
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border-left: 3px solid #16a34a;
+        }
+        .requirement-box.no {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.5rem;
             border-radius: 4px;
         }
-        .requirement.required {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-        }
-        .requirement.conditional {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-        }
-        .requirement.not-required {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-        }
-        .requirement strong { display: block; margin-bottom: 0.25rem; }
-        .timeline {
+        .timeline-text {
             font-weight: bold;
-            color: #2c3e50;
-        }
-        .notes {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-            border-left: 4px solid #6c757d;
+            color: #dc2626;
+            font-size: 11px;
+            display: block;
+            margin-top: 0.25rem;
         }
         .footer {
             margin-top: 3rem;
-            padding-top: 1rem;
-            border-top: 1px solid #bdc3c7;
-            font-size: 12px;
-            color: #6c757d;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+            font-size: 10px;
+            color: #94a3b8;
             text-align: center;
         }
         @media print {
-            body { margin: 0; padding: 0.25in; }
+            body { margin: 0; padding: 0; }
+            .header { margin: 0; }
+            .confidential { margin: 0; }
             .no-print { display: none; }
+            .metric-card, .requirement-item, .requirement-box {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
         }
     </style>
 </head>
@@ -179,106 +279,98 @@ export const generateAssessmentReport = (
     ${options.includeConfidentialHeader ? '<div class="confidential">CONFIDENTIAL ATTORNEY-CLIENT COMMUNICATION</div>' : ''}
 
     <div class="header">
-        ${options.includeBranding ? `
-        <div class="branding">
-            <h1>${branding.firmName}</h1>
-            <p>Prepared by: ${branding.attorneyName}</p>
-            <p>${branding.address}</p>
-            <p>${branding.phone} | ${branding.email}</p>
-        </div>
-        ` : ''}
+        <h1 style="margin: 0; font-size: 32px; font-weight: bold;">Data Breach Assessment</h1>
+        <p style="margin: 0.5rem 0; font-size: 14px; opacity: 0.9;">Executive Summary</p>
+        ${options.includeTimestamp ? `<p style="margin: 0; font-size: 12px; opacity: 0.8;">${currentDate}</p>` : ''}
+    </div>
 
-        <h1 style="margin: 0; font-size: 28px; color: #2c3e50;">Data Breach Notification Assessment</h1>
-        ${data.clientName ? `<p style="margin: 0.5rem 0; font-size: 16px;"><strong>Client:</strong> ${data.clientName}</p>` : ''}
-        ${data.incidentDate ? `<p style="margin: 0.5rem 0; font-size: 16px;"><strong>Incident Date:</strong> ${data.incidentDate}</p>` : ''}
-        ${options.includeTimestamp ? `<p style="margin: 0.5rem 0; font-size: 14px; color: #6c757d;"><strong>Report Generated:</strong> ${currentDate}</p>` : ''}
+    ${options.includeBranding ? `
+    <div class="branding">
+        <h1>${branding.firmName}</h1>
+        <p>Prepared by: ${branding.attorneyName} | ${branding.phone} | ${branding.email}</p>
+    </div>
+    ` : ''}
+
+    ${earliestIndividual < 999 || earliestAG < 999 ? `
+    <div class="alert-critical">
+        <h3>⚠ URGENT ACTION REQUIRED</h3>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6;">
+            <strong>Earliest Deadline:</strong>
+            ${earliestIndividual < earliestAG ?
+                `Individual notification required within <strong>${earliestIndividual} days</strong> in ${requireIndividual} jurisdiction(s).` :
+                `Attorney General notification required within <strong>${earliestAG} days</strong> in ${requireAG} jurisdiction(s).`
+            }
+        </p>
+    </div>
+    ` : ''}
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span class="metric-value">${totalAffected.toLocaleString()}</span>
+            <span class="metric-label">Total Affected</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">${affectedStates.length}</span>
+            <span class="metric-label">Jurisdictions</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">${data.assessmentData.dataTypes.length}</span>
+            <span class="metric-label">Data Types</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-value">${data.assessmentData.isEncrypted === 'yes' ? 'Yes' : 'No'}</span>
+            <span class="metric-label">Encrypted</span>
+        </div>
+    </div>
+
+    <div class="requirements-summary">
+        <div class="requirements-header">Notification Requirements Summary</div>
+        <div class="requirements-grid">
+            <div class="requirement-item">
+                <span class="requirement-count">${requireIndividual}</span>
+                <div class="requirement-label">Individual Notification Required</div>
+            </div>
+            <div class="requirement-item">
+                <span class="requirement-count">${requireAG}</span>
+                <div class="requirement-label">AG Notification Required</div>
+            </div>
+            <div class="requirement-item">
+                <span class="requirement-count">${requireCRA}</span>
+                <div class="requirement-label">CRA Notification Required</div>
+            </div>
+        </div>
     </div>
 
     <div class="section">
-        <h2>Executive Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <strong>Total Affected Individuals</strong>
-                ${totalAffected.toLocaleString()}
-            </div>
-            <div class="summary-item">
-                <strong>States Impacted</strong>
-                ${affectedStates.length} jurisdictions
-            </div>
-            <div class="summary-item">
-                <strong>Data Types Involved</strong>
-                ${data.assessmentData.dataTypes.join(', ') || 'Not specified'}
-            </div>
-            <div class="summary-item">
-                <strong>Encryption Status</strong>
-                ${data.assessmentData.isEncrypted === 'yes' ? 'Encrypted' : data.assessmentData.isEncrypted === 'no' ? 'Not Encrypted' : 'Unknown'}
-            </div>
-        </div>
-
-        <div class="summary-item" style="grid-column: 1 / -1; background: #e3f2fd; border-left-color: #2196f3;">
-            <strong>Regulatory Analysis</strong>
-            This analysis examines notification requirements across ${affectedStates.length} jurisdiction(s) affecting approximately ${totalAffected.toLocaleString()} individuals.
-            ${data.results.filter(r => r.individualNotification.required === 'Yes').length} jurisdiction(s) require individual notification,
-            ${data.results.filter(r => r.agNotification.required === 'Yes').length} require attorney general notification, and
-            ${data.results.filter(r => r.craNotification.required === 'Yes').length} require consumer reporting agency notification.
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Jurisdiction-Specific Requirements</h2>
-        <div class="state-results">
-            ${data.results.map(result => `
-                <div class="state-card">
-                    <div class="state-header">
-                        ${result.law.state} (${result.stateCode})
-                        <span style="float: right; font-weight: normal; font-size: 14px;">
-                            ${result.affectedCount.toLocaleString()} affected
-                        </span>
+        <h2>Jurisdiction Details</h2>
+        <div class="state-list">
+            ${data.results.filter(r => r.individualNotification.required === 'Yes' || r.agNotification.required === 'Yes').map(result => `
+                <div class="state-row">
+                    <div>
+                        <div class="state-name">${result.law.state}</div>
+                        <div class="state-count">${result.affectedCount.toLocaleString()} affected</div>
                     </div>
-                    <div class="state-content">
-                        <div class="requirement ${result.individualNotification.required.toLowerCase().replace(' ', '-')}">
-                            <strong>Individual Notification:</strong>
-                            <span class="status">${result.individualNotification.required}</span>
-                            <span class="timeline">${result.individualNotification.timeline}</span>
-                            <p style="margin: 0.5rem 0; font-size: 14px;">${result.individualNotification.reason}</p>
-                        </div>
-
-                        ${result.agNotification.required !== 'No' ? `
-                        <div class="requirement ${result.agNotification.required.toLowerCase().replace(' ', '-')}">
-                            <strong>Attorney General Notification:</strong>
-                            <span class="status">${result.agNotification.required}</span>
-                            <span class="timeline">${result.agNotification.timeline}</span>
-                            <p style="margin: 0.5rem 0; font-size: 14px;">${result.agNotification.reason}</p>
-                        </div>
-                        ` : ''}
-
-                        ${result.craNotification.required !== 'No' ? `
-                        <div class="requirement ${result.craNotification.required.toLowerCase().replace(' ', '-')}">
-                            <strong>CRA Notification:</strong>
-                            <span class="status">${result.craNotification.required}</span>
-                            <span class="timeline">${result.craNotification.timeline}</span>
-                            <p style="margin: 0.5rem 0; font-size: 14px;">${result.craNotification.reason}</p>
-                        </div>
-                        ` : ''}
+                    <div class="requirement-box ${result.individualNotification.required === 'Yes' ? 'yes' : 'no'}">
+                        <div><strong>Individual:</strong> ${result.individualNotification.required}</div>
+                        ${result.individualNotification.required === 'Yes' ? `<span class="timeline-text">${result.individualNotification.timeline}</span>` : ''}
+                    </div>
+                    <div class="requirement-box ${result.agNotification.required === 'Yes' ? 'yes' : 'no'}">
+                        <div><strong>AG:</strong> ${result.agNotification.required}</div>
+                        ${result.agNotification.required === 'Yes' ? `<span class="timeline-text">${result.agNotification.timeline}</span>` : ''}
+                    </div>
+                    <div class="requirement-box ${result.craNotification.required === 'Yes' ? 'yes' : 'no'}">
+                        <div><strong>CRA:</strong> ${result.craNotification.required}</div>
+                        ${result.craNotification.required === 'Yes' ? `<span class="timeline-text">${result.craNotification.timeline}</span>` : ''}
                     </div>
                 </div>
             `).join('')}
         </div>
     </div>
 
-    ${data.summaryNotes ? `
-    <div class="section">
-        <h2>Attorney Notes</h2>
-        <div class="notes">
-            ${data.summaryNotes.replace(/\n/g, '<br>')}
-        </div>
-    </div>
-    ` : ''}
-
     <div class="footer">
-        <p>This report is for informational purposes and does not constitute legal advice.</p>
-        <p>Statutory requirements may have changed since this analysis was generated.</p>
-        <p>© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>
+        <p><strong>DISCLAIMER:</strong> This report provides a preliminary assessment for informational purposes only and does not constitute legal advice.</p>
+        <p>Statutory requirements are subject to change. Consult with qualified legal counsel for definitive guidance.</p>
+        ${options.includeBranding ? `<p style="margin-top: 1rem;">© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>` : ''}
     </div>
 </body>
 </html>
@@ -316,84 +408,126 @@ export const generateMultiStateComparisonReport = (
     <title>Multi-State Data Breach Law Comparison</title>
     <style>
         body {
-            font-family: 'Times New Roman', serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 8.5in;
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.5;
+            color: #1a1a1a;
+            max-width: 11in;
             margin: 0 auto;
             padding: 0.5in;
             background: white;
         }
         .header {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            color: white;
+            padding: 2rem;
+            margin: -0.5in -0.5in 2rem -0.5in;
             text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 1rem;
         }
         .confidential {
-            color: #e74c3c;
+            background: #dc2626;
+            color: white;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 11px;
             text-align: center;
-            margin-bottom: 1rem;
+            padding: 0.5rem;
+            margin: -0.5in -0.5in 0 -0.5in;
+            letter-spacing: 2px;
         }
         .branding {
-            margin-bottom: 2rem;
-        }
-        .branding h1 { margin: 0; font-size: 24px; color: #2c3e50; }
-        .branding p { margin: 0.25rem 0; font-size: 14px; }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
+            background: #f8fafc;
+            padding: 1rem;
+            border-left: 4px solid #0891b2;
+            margin-bottom: 1.5rem;
             font-size: 12px;
         }
-        .comparison-table th,
-        .comparison-table td {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
-            text-align: left;
-            vertical-align: top;
-        }
-        .comparison-table th {
-            background: #34495e;
-            color: white;
-            font-weight: bold;
-        }
-        .comparison-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        .state-header {
-            background: #34495e;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-        }
-        .requirement-yes { background: #d4edda; color: #155724; }
-        .requirement-no { background: #f8d7da; color: #721c24; }
-        .requirement-conditional { background: #fff3cd; color: #856404; }
-        .timeline { font-weight: bold; color: #2c3e50; }
-        .threshold { font-weight: bold; color: #3498db; }
+        .branding h1 { margin: 0 0 0.5rem 0; font-size: 18px; color: #1e293b; }
+        .branding p { margin: 0.1rem 0; color: #64748b; }
         .section {
             margin-bottom: 2rem;
         }
         .section h2 {
-            color: #2c3e50;
-            border-bottom: 1px solid #bdc3c7;
-            padding-bottom: 0.5rem;
+            color: #1e293b;
+            font-size: 18px;
             margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #0891b2;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background: #1e293b;
+            color: white;
+            padding: 0.75rem 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+            border-right: 1px solid #475569;
+        }
+        .comparison-table th:last-child { border-right: none; }
+        .comparison-table td {
+            padding: 0.6rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        .comparison-table td:last-child { border-right: none; }
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .comparison-table tr:hover {
+            background: #f1f5f9;
+        }
+        .state-name {
+            font-weight: bold;
+            color: #0891b2;
+            font-size: 12px;
+        }
+        .requirement-yes {
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .requirement-no {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .timeline {
+            font-weight: bold;
+            color: #dc2626;
+        }
+        .threshold {
+            font-weight: 600;
+            color: #0891b2;
         }
         .footer {
             margin-top: 3rem;
-            padding-top: 1rem;
-            border-top: 1px solid #bdc3c7;
-            font-size: 12px;
-            color: #6c757d;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+            font-size: 10px;
+            color: #94a3b8;
             text-align: center;
         }
         @media print {
             body { margin: 0; padding: 0.25in; }
+            .header { margin: 0; }
+            .confidential { margin: 0; }
             .no-print { display: none; }
+            .comparison-table th, .requirement-yes, .requirement-no {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
         }
     </style>
 </head>
@@ -401,21 +535,19 @@ export const generateMultiStateComparisonReport = (
     ${options.includeConfidentialHeader ? '<div class="confidential">CONFIDENTIAL ATTORNEY-CLIENT COMMUNICATION</div>' : ''}
 
     <div class="header">
-        ${options.includeBranding ? `
-        <div class="branding">
-            <h1>${branding.firmName}</h1>
-            <p>Prepared by: ${branding.attorneyName}</p>
-            <p>${branding.address}</p>
-            <p>${branding.phone} | ${branding.email}</p>
-        </div>
-        ` : ''}
-
-        <h1 style="margin: 0; font-size: 28px; color: #2c3e50;">Multi-State Data Breach Law Comparison</h1>
-        <p style="margin: 0.5rem 0; font-size: 16px;">
+        <h1 style="margin: 0; font-size: 32px; font-weight: bold;">Multi-State Comparison</h1>
+        <p style="margin: 0.5rem 0; font-size: 14px; opacity: 0.9;">
             Comparing ${filteredLaws.length} jurisdictions: ${filteredLaws.map(l => l.state).join(', ')}
         </p>
-        ${options.includeTimestamp ? `<p style="margin: 0.5rem 0; font-size: 14px; color: #6c757d;"><strong>Analysis Date:</strong> ${currentDate}</p>` : ''}
+        ${options.includeTimestamp ? `<p style="margin: 0; font-size: 12px; opacity: 0.8;">${currentDate}</p>` : ''}
     </div>
+
+    ${options.includeBranding ? `
+    <div class="branding">
+        <h1>${branding.firmName}</h1>
+        <p>Prepared by: ${branding.attorneyName} | ${branding.phone} | ${branding.email}</p>
+    </div>
+    ` : ''}
 
     <div class="section">
         <h2>Notification Timelines</h2>
@@ -432,7 +564,7 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><strong>${law.state}</strong></td>
+                        <td><span class="state-name">${law.state}</span></td>
                         <td class="timeline">${law.individualNotificationTimelineDays > 0 ? `${law.individualNotificationTimelineDays} days` : 'ASAP'}</td>
                         <td class="timeline">${law.agNotificationTimelineDays !== null ? (law.agNotificationTimelineDays > 0 ? `${law.agNotificationTimelineDays} days` : 'Concurrent') : 'N/A'}</td>
                         <td>${law.agNotificationTimelineRelativeTo || 'Fixed'}</td>
@@ -458,7 +590,7 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><strong>${law.state}</strong></td>
+                        <td><span class="state-name">${law.state}</span></td>
                         <td class="threshold">${law.agNotificationThreshold?.toLocaleString() || 'N/A'}</td>
                         <td class="threshold">${law.craNotificationThreshold?.toLocaleString() || 'N/A'}</td>
                         <td class="threshold">${law.substituteNotificationCostTrigger > 0 ? `$${law.substituteNotificationCostTrigger.toLocaleString()}` : 'N/A'}</td>
@@ -486,12 +618,12 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><strong>${law.state}</strong></td>
-                        <td class="requirement-${law.enforcementPrivateRightOfAction ? 'yes' : 'no'}">${law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</td>
-                        <td class="requirement-${law.exemptionEncryptionSafeHarbor ? 'yes' : 'no'}">${law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</td>
-                        <td class="requirement-${law.riskOfHarmAnalysisCanEliminateNotification ? 'yes' : 'no'}">${law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</td>
-                        <td class="requirement-${law.exemptionHipaa ? 'yes' : 'no'}">${law.exemptionHipaa ? 'Yes' : 'No'}</td>
-                        <td class="requirement-${law.exemptionGlba ? 'yes' : 'no'}">${law.exemptionGlba ? 'Yes' : 'No'}</td>
+                        <td><span class="state-name">${law.state}</span></td>
+                        <td><span class="requirement-${law.enforcementPrivateRightOfAction ? 'yes' : 'no'}">${law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</span></td>
+                        <td><span class="requirement-${law.exemptionEncryptionSafeHarbor ? 'yes' : 'no'}">${law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</span></td>
+                        <td><span class="requirement-${law.riskOfHarmAnalysisCanEliminateNotification ? 'yes' : 'no'}">${law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</span></td>
+                        <td><span class="requirement-${law.exemptionHipaa ? 'yes' : 'no'}">${law.exemptionHipaa ? 'Yes' : 'No'}</span></td>
+                        <td><span class="requirement-${law.exemptionGlba ? 'yes' : 'no'}">${law.exemptionGlba ? 'Yes' : 'No'}</span></td>
                         <td class="threshold">${law.enforcementPenaltyMaximum > 0 ? `$${law.enforcementPenaltyMaximum.toLocaleString()}` : 'Not specified'}</td>
                     </tr>
                 `).join('')}
@@ -513,9 +645,9 @@ export const generateMultiStateComparisonReport = (
             <tbody>
                 ${filteredLaws.map(law => `
                     <tr>
-                        <td><strong>${law.state}</strong></td>
+                        <td><span class="state-name">${law.state}</span></td>
                         <td>${law.enforcementAuthority || 'Not specified'}</td>
-                        <td class="requirement-${law.enforcementAuthorityIsExclusive ? 'yes' : 'no'}">${law.enforcementAuthorityIsExclusive ? 'Yes' : 'No'}</td>
+                        <td><span class="requirement-${law.enforcementAuthorityIsExclusive ? 'yes' : 'no'}">${law.enforcementAuthorityIsExclusive ? 'Yes' : 'No'}</span></td>
                         <td>${law.enforcementTypeDamagesDescription || 'Not specified'}</td>
                     </tr>
                 `).join('')}
@@ -524,9 +656,9 @@ export const generateMultiStateComparisonReport = (
     </div>
 
     <div class="footer">
-        <p>This comparison is for informational purposes and does not constitute legal advice.</p>
-        <p>Statutory requirements may have changed since this analysis was generated.</p>
-        <p>© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>
+        <p><strong>DISCLAIMER:</strong> This comparison is for informational purposes only and does not constitute legal advice.</p>
+        <p>Statutory requirements are subject to change. Consult with qualified legal counsel for definitive guidance.</p>
+        ${options.includeBranding ? `<p style="margin-top: 1rem;">© ${new Date().getFullYear()} ${branding.firmName}. All rights reserved.</p>` : ''}
     </div>
 </body>
 </html>
