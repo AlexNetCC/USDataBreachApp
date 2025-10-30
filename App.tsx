@@ -43,6 +43,10 @@ const App: React.FC = () => {
   });
   const [isQuickCompareOpen, setIsQuickCompareOpen] = useState(false);
 
+  // Track what view mode for explorer (gallery, detail, or comparison)
+  const [explorerView, setExplorerView] = useState<'gallery' | 'detail' | 'comparison'>('gallery');
+  const [detailStateCode, setDetailStateCode] = useState<string | null>(null);
+
   const [appState, setAppState] = useState<AppState>(() => {
     return loadAppState() || defaultAppState;
   });
@@ -50,15 +54,6 @@ const App: React.FC = () => {
   useEffect(() => {
     saveAppState(appState);
   }, [appState]);
-
-  // Auto-open quick compare sheet when 2+ states are selected in gallery view
-  useEffect(() => {
-    if (explorerView === 'gallery' && selectedLaws.length >= 2) {
-      setIsQuickCompareOpen(true);
-    } else {
-      setIsQuickCompareOpen(false);
-    }
-  }, [selectedLaws.length, explorerView]);
 
   useEffect(() => {
     const fetchLaws = async () => {
@@ -194,9 +189,14 @@ const App: React.FC = () => {
     return appState.selectedStateCodes.map(code => lawIndex.byStateCode.get(code)!).filter(Boolean);
   }, [appState.selectedStateCodes, lawIndex]);
 
-  // Track what view mode for explorer (gallery, detail, or comparison)
-  const [explorerView, setExplorerView] = useState<'gallery' | 'detail' | 'comparison'>('gallery');
-  const [detailStateCode, setDetailStateCode] = useState<string | null>(null);
+  // Auto-open quick compare sheet when 2+ states are selected in gallery view
+  useEffect(() => {
+    if (explorerView === 'gallery' && selectedLaws.length >= 2) {
+      setIsQuickCompareOpen(true);
+    } else {
+      setIsQuickCompareOpen(false);
+    }
+  }, [selectedLaws.length, explorerView]);
 
   const handleViewState = (stateCode: string) => {
     setDetailStateCode(stateCode);
