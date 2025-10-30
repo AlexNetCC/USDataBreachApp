@@ -40,47 +40,57 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = React.memo(({ title,
   }, [laws, fields]);
   
   return (
-    <details open={defaultOpen} className="bg-surface-light rounded-lg shadow-subtle border border-border-light overflow-hidden group">
-      <summary className="w-full flex justify-between items-center p-4 bg-surface-light hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer list-none">
-        <h2 className="text-lg font-semibold font-display text-text-primary">{title}</h2>
+    <details open={defaultOpen} className="bg-surface-light rounded-xl shadow-card border border-border-light overflow-hidden group">
+      <summary className="w-full flex justify-between items-center p-5 bg-surface-light hover:bg-accent/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer list-none transition-colors duration-200">
+        <h2 className="text-2xl font-bold font-display text-text-primary">{title}</h2>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 text-gray-500 transition-transform duration-300 group-open:rotate-180"
+          className="h-6 w-6 text-text-secondary transition-transform duration-300 group-open:rotate-180"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          strokeWidth={2.5}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </summary>
-      <div className="border-t border-border-light">
+      <div className="border-t-2 border-border-light">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] border-collapse text-left">
-            <thead className="bg-gray-50">
-              <tr className="border-b-2 border-accent/20">
-                <th className="p-3 font-semibold text-text-primary bg-gray-50 sticky left-0 z-10 w-[200px]">Feature</th>
+            <thead className="bg-accent/10">
+              <tr className="border-b-2 border-accent/30">
+                <th className="p-4 font-bold text-text-primary bg-accent/10 sticky left-0 z-10 w-[200px]">Feature</th>
                 {laws.map(law => (
-                  <th key={law.stateCode} className="p-3 font-semibold text-accent-hover text-center w-[200px]">
+                  <th key={law.stateCode} className="p-4 font-bold text-accent text-center w-[200px]">
                     {law.state}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {fields.map(field => {
+              {fields.map((field, index) => {
                   const isDifferent = differenceMap.get(field.key as string) ?? false;
-                  const rowBg = isDifferent ? 'bg-accent/5' : 'bg-surface-light';
-                  const stickyColBg = isDifferent ? 'bg-accent/5' : 'bg-surface-light';
+                  const isEvenRow = index % 2 === 0;
+                  const rowBg = isDifferent
+                    ? 'bg-accent/10'
+                    : isEvenRow
+                      ? 'bg-surface-light'
+                      : 'bg-gray-50/50';
+                  const stickyColBg = isDifferent
+                    ? 'bg-accent/10'
+                    : isEvenRow
+                      ? 'bg-surface-light'
+                      : 'bg-gray-50/50';
 
                   return (
-                    <tr key={field.label} className={`border-b border-border-light ${rowBg}`}>
-                      <td className={`p-3 font-medium text-text-secondary sticky left-0 w-[200px] z-10 ${stickyColBg}`}>{field.label}</td>
+                    <tr key={field.label} className={`border-b border-border-light ${rowBg} hover:bg-accent/5 transition-colors`}>
+                      <td className={`p-4 font-semibold text-text-secondary sticky left-0 w-[200px] z-10 ${stickyColBg}`}>{field.label}</td>
                       {laws.map(law => (
-                        <td key={law.stateCode} className="p-3 align-top w-[200px]">
-                          <div className={`text-sm ${field.isLongText ? 'text-left whitespace-pre-wrap' : 'text-center'} ${isDifferent ? 'text-text-primary' : 'text-text-secondary'}`}>
-                            {field.render 
-                                ? field.render(law[field.key]) 
-                                : field.isBoolean 
+                        <td key={law.stateCode} className="p-4 align-top w-[200px]">
+                          <div className={`text-sm ${field.isLongText ? 'text-left whitespace-pre-wrap leading-relaxed' : 'text-center'} ${isDifferent ? 'text-text-primary font-medium' : 'text-text-secondary'}`}>
+                            {field.render
+                                ? field.render(law[field.key])
+                                : field.isBoolean
                                     ? <div className="flex justify-center"><BooleanIndicator value={!!law[field.key]} /></div>
                                     : String(law[field.key] ?? 'N/A')}
                           </div>
