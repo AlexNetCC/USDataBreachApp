@@ -5,6 +5,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import InfoCard from './InfoCard';
 import BooleanIndicator from './BooleanIndicator';
 import AskAI from './AskAI';
+import CopyableProvision from './CopyableProvision';
 
 interface StateDetailViewProps {
   law: StateLaw;
@@ -36,6 +37,18 @@ const StateDetailView: React.FC<StateDetailViewProps> = ({ law }) => {
 
       {/* AI Assistant */}
       <AskAI law={law} />
+
+      {/* Copy Provisions Section */}
+      <div className="bg-surface-light p-6 rounded-xl shadow-card border border-border-light no-print">
+        <h2 className="text-2xl font-bold font-display text-text-primary mb-4">Copy Legal Provisions</h2>
+        <p className="text-text-secondary mb-4">Quickly copy formatted legal provisions for emails, memos, and client communications:</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <CopyableProvision law={law} provisionType="timeline" title="Timelines" />
+          <CopyableProvision law={law} provisionType="threshold" title="Thresholds" />
+          <CopyableProvision law={law} provisionType="exemption" title="Exemptions" />
+          <CopyableProvision law={law} provisionType="enforcement" title="Enforcement" />
+        </div>
+      </div>
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

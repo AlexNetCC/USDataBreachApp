@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { StateLaw } from '../types';
 import { getTimelineColor, getThresholdColor, getBooleanColor } from '../utils/matrixColors';
+import MultiStateExportSelector from './MultiStateExportSelector';
 
 interface MatrixViewProps {
   laws: StateLaw[];
@@ -68,6 +69,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   const [privateAction, setPrivateAction] = useState<'all' | 'yes' | 'no'>('all');
   const [riskOfHarm, setRiskOfHarm] = useState<'all' | 'yes' | 'no'>('all');
   const [encryptionSafeHarbor, setEncryptionSafeHarbor] = useState<'all' | 'yes' | 'no'>('all');
+  const [showExportSelector, setShowExportSelector] = useState(false);
 
   // Close details dropdown on outside click or Escape key
   useEffect(() => {
@@ -343,6 +345,21 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
           </div>
         </details>
 
+        {/* Export Analysis Button */}
+        <button
+          onClick={() => setShowExportSelector(!showExportSelector)}
+          className={`px-5 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-250 flex items-center select-none shadow-md border-2 ${
+            showExportSelector
+              ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+              : 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export Analysis
+        </button>
+
         {/* Customize Columns Button */}
         <details className="inline-block" ref={detailsRef}>
           <summary className="list-none px-5 py-3 bg-accent text-white border-2 border-accent rounded-lg font-semibold cursor-pointer hover:bg-accent-hover hover:border-accent-hover transition-all duration-250 flex items-center select-none shadow-md">
@@ -370,6 +387,19 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
           </div>
         </details>
       </div>
+
+      {/* Multi-State Export Selector */}
+      {showExportSelector && (
+        <div className="mb-6">
+          <MultiStateExportSelector
+            laws={laws}
+            onExport={(selectedStates) => {
+              console.log('Export selected states:', selectedStates);
+              setShowExportSelector(false);
+            }}
+          />
+        </div>
+      )}
 
       <div className="overflow-auto border-2 border-border-light rounded-xl shadow-card bg-surface-light" style={{ maxHeight: '70vh' }}>
         <table className="min-w-full border-collapse text-sm">

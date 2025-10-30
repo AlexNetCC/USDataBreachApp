@@ -2,6 +2,8 @@
 import React from 'react';
 import { StateLaw } from '../types';
 import ComparisonSection, { ComparisonField } from './ComparisonSection';
+import ExportControls from './ExportControls';
+import CopyableProvision from './CopyableProvision';
 
 interface ComparisonViewProps {
   laws: StateLaw[];
@@ -56,16 +58,23 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ laws }) => {
                   Comparing {laws.map(l => l.state).join(', ')}
                 </p>
             </div>
-            <button
-              onClick={handlePrint}
-              className="no-print px-6 py-3 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover hover:shadow-md transition-all duration-250 flex items-center gap-2"
-            >
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H5zm3 1a1 1 0 000 2h2a1 1 0 100-2H8zM5 12a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
-                <path d="M4 8a1 1 0 100 2h12a1 1 0 100-2H4z" />
-               </svg>
-              <span>Export for Client</span>
-            </button>
+            <div className="flex items-center gap-3 no-print">
+              <ExportControls
+                type="comparison"
+                laws={laws}
+                selectedStates={laws.map(l => l.stateCode)}
+              />
+              <button
+                onClick={handlePrint}
+                className="px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 hover:shadow-md transition-all duration-250 flex items-center gap-2"
+              >
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H5zm3 1a1 1 0 000 2h2a1 1 0 100-2H8zM5 12a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                  <path d="M4 8a1 1 0 100 2h12a1 1 0 100-2H4z" />
+                 </svg>
+                <span>Quick Print</span>
+              </button>
+            </div>
         </div>
          <div className="mt-6 flex items-start gap-3 text-sm text-text-secondary no-print bg-accent/5 p-4 rounded-lg border border-accent/20">
             <svg className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
