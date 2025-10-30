@@ -472,7 +472,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
         </div>
       </div>
 
-      <div className="overflow-auto border-2 border-border-light rounded-xl shadow-card bg-surface-light" style={{ maxHeight: '70vh' }}>
+      <div className="overflow-auto border-2 border-border-light rounded-xl shadow-card bg-surface-light" style={{ minHeight: '50vh', maxHeight: '70vh' }}>
         <table className="min-w-full border-collapse text-sm">
             <thead className="bg-accent/10">
                 <tr>
