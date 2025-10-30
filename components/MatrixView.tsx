@@ -15,32 +15,38 @@ interface ColumnConfig {
     label: string;
     defaultVisible: boolean;
     sortable?: boolean;
+    filterable?: boolean;
     isLongText?: boolean;
     widthClass?: string;
     render?: (law: StateLaw) => React.ReactNode;
 }
 
+interface ColumnFilter {
+  searchTerm: string;
+  selectedValues: Set<string>;
+}
+
 const ALL_COLUMNS: ColumnConfig[] = [
-    { key: 'individualNotificationTimelineDays', label: 'Individual Timeline (Days)', defaultVisible: true, sortable: true, widthClass: 'min-w-[150px]', render: (law) => {
+    { key: 'individualNotificationTimelineDays', label: 'Individual Timeline (Days)', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[150px]', render: (law) => {
         const days = law.individualNotificationTimelineDays;
         const text = days > 0 ? days : 'Not Specified';
         return <span className={`font-semibold ${getTimelineColor(days)}`}>{text}</span>;
     }},
-    { key: 'agNotificationTimelineDays', label: 'AG Timeline (Days)', defaultVisible: true, sortable: true, widthClass: 'min-w-[150px]', render: (law) => {
+    { key: 'agNotificationTimelineDays', label: 'AG Timeline (Days)', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[150px]', render: (law) => {
         const days = law.agNotificationTimelineDays;
         const text = days !== null ? (days > 0 ? days : 'Concurrent') : 'N/A';
         const displayDays = days === null ? -1 : days;
         return <span className={`font-semibold ${getTimelineColor(displayDays)}`}>{text}</span>;
     }},
-    { key: 'agNotificationThreshold', label: 'AG Threshold (#)', defaultVisible: true, sortable: true, widthClass: 'min-w-[150px]', render: (law) => <span className={`font-semibold ${getThresholdColor(law.agNotificationThreshold)}`}>{law.agNotificationThreshold?.toLocaleString() ?? 'N/A'}</span> },
-    { key: 'craNotificationThreshold', label: 'CRA Threshold (#)', defaultVisible: true, sortable: true, widthClass: 'min-w-[150px]', render: (law) => <span className={`font-semibold ${getThresholdColor(law.craNotificationThreshold)}`}>{law.craNotificationThreshold?.toLocaleString() ?? 'N/A'}</span> },
-    { key: 'riskOfHarmAnalysisCanEliminateNotification', label: 'Risk of Harm Allowed', defaultVisible: true, sortable: true, widthClass: 'min-w-[180px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.riskOfHarmAnalysisCanEliminateNotification)}`}>{law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</span> },
-    { key: 'enforcementPrivateRightOfAction', label: 'Private Right of Action', defaultVisible: true, sortable: true, widthClass: 'min-w-[200px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.enforcementPrivateRightOfAction)}`}>{law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</span> },
+    { key: 'agNotificationThreshold', label: 'AG Threshold (#)', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[150px]', render: (law) => <span className={`font-semibold ${getThresholdColor(law.agNotificationThreshold)}`}>{law.agNotificationThreshold?.toLocaleString() ?? 'N/A'}</span> },
+    { key: 'craNotificationThreshold', label: 'CRA Threshold (#)', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[150px]', render: (law) => <span className={`font-semibold ${getThresholdColor(law.craNotificationThreshold)}`}>{law.craNotificationThreshold?.toLocaleString() ?? 'N/A'}</span> },
+    { key: 'riskOfHarmAnalysisCanEliminateNotification', label: 'Risk of Harm Allowed', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[180px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.riskOfHarmAnalysisCanEliminateNotification)}`}>{law.riskOfHarmAnalysisCanEliminateNotification ? 'Yes' : 'No'}</span> },
+    { key: 'enforcementPrivateRightOfAction', label: 'Private Right of Action', defaultVisible: true, sortable: true, filterable: true, widthClass: 'min-w-[200px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.enforcementPrivateRightOfAction)}`}>{law.enforcementPrivateRightOfAction ? 'Yes' : 'No'}</span> },
     { key: 'breachDefinitionText', label: 'Definition of Breach', defaultVisible: false, isLongText: true, widthClass: 'min-w-[350px]' },
-    { 
-        key: 'markdownContent', 
-        label: 'Definition of Personal Information', 
-        defaultVisible: false, 
+    {
+        key: 'markdownContent',
+        label: 'Definition of Personal Information',
+        defaultVisible: false,
         isLongText: true,
         widthClass: 'min-w-[350px]',
         render: (law) => {
@@ -48,9 +54,9 @@ const ALL_COLUMNS: ColumnConfig[] = [
             return match ? match[1].trim().replace(/^\s*[-*] /gm, '• ').replace(/(\r\n|\n|\r)/gm, "\n") : 'Not specified.';
         }
     },
-    { key: 'breachTrigger', label: 'Breach Trigger', defaultVisible: false, sortable: true, widthClass: 'min-w-[200px]', render: (law) => law.breachTrigger.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') },
+    { key: 'breachTrigger', label: 'Breach Trigger', defaultVisible: false, sortable: true, filterable: true, widthClass: 'min-w-[200px]', render: (law) => law.breachTrigger.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') },
     { key: 'riskOfHarmAnalysisStandard', label: 'Risk of Harm Standard', defaultVisible: false, isLongText: true, widthClass: 'min-w-[350px]' },
-    { key: 'exemptionEncryptionSafeHarbor', label: 'Encryption Safe Harbor', defaultVisible: false, sortable: true, widthClass: 'min-w-[220px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.exemptionEncryptionSafeHarbor)}`}>{law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</span> },
+    { key: 'exemptionEncryptionSafeHarbor', label: 'Encryption Safe Harbor', defaultVisible: false, sortable: true, filterable: true, widthClass: 'min-w-[220px]', render: (law) => <span className={`font-bold ${getBooleanColor(law.exemptionEncryptionSafeHarbor)}`}>{law.exemptionEncryptionSafeHarbor ? 'Yes' : 'No'}</span> },
 ];
 
 const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
@@ -59,43 +65,47 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   const [visibleColumnKeys, setVisibleColumnKeys] = useState<Array<keyof StateLaw>>(
     ALL_COLUMNS.filter(c => c.defaultVisible).map(c => c.key)
   );
+  const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
+  const [stateFilter, setStateFilter] = useState<ColumnFilter>({ searchTerm: '', selectedValues: new Set() });
+  const [columnFilters, setColumnFilters] = useState<Map<keyof StateLaw, ColumnFilter>>(new Map());
+
   const detailsRef = useRef<HTMLDetailsElement>(null);
-  const filterRef = useRef<HTMLDetailsElement>(null);
+  const filterRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Filter state
-  const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set());
-  const [agThresholds, setAgThresholds] = useState<Set<number | null>>(new Set());
-  const [privateAction, setPrivateAction] = useState<'all' | 'yes' | 'no'>('all');
-  const [riskOfHarm, setRiskOfHarm] = useState<'all' | 'yes' | 'no'>('all');
-  const [encryptionSafeHarbor, setEncryptionSafeHarbor] = useState<'all' | 'yes' | 'no'>('all');
-
-  // Close details dropdown on outside click or Escape key
+  // Close column visibility dropdown on outside click or Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
         detailsRef.current.removeAttribute('open');
       }
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        filterRef.current.removeAttribute('open');
+
+      // Close filter dropdowns
+      if (openFilterColumn) {
+        const filterRef = filterRefs.current.get(openFilterColumn);
+        if (filterRef && !filterRef.contains(event.target as Node)) {
+          setOpenFilterColumn(null);
+        }
       }
     };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         if (detailsRef.current?.hasAttribute('open')) {
           detailsRef.current.removeAttribute('open');
         }
-        if (filterRef.current?.hasAttribute('open')) {
-          filterRef.current.removeAttribute('open');
+        if (openFilterColumn) {
+          setOpenFilterColumn(null);
         }
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [openFilterColumn]);
 
   const handleSort = (key: SortKey) => {
     if (!key) return;
@@ -108,63 +118,92 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   };
 
   const toggleColumn = (key: keyof StateLaw) => {
-    setVisibleColumnKeys(prev => 
-      prev.includes(key) 
-      ? prev.filter(k => k !== key) 
+    setVisibleColumnKeys(prev =>
+      prev.includes(key)
+      ? prev.filter(k => k !== key)
       : [...ALL_COLUMNS.filter(c => prev.includes(c.key) || c.key === key).map(c => c.key)]
     );
   };
-  
+
   const visibleColumns = useMemo(() => {
     const visibleSet = new Set(visibleColumnKeys);
     return ALL_COLUMNS.filter(c => visibleSet.has(c.key));
   }, [visibleColumnKeys]);
 
-  // Get unique AG thresholds for filter options
-  const uniqueAgThresholds = useMemo(() => {
-    const thresholds = new Set<number | null>();
-    laws.forEach(law => thresholds.add(law.agNotificationThreshold));
-    return Array.from(thresholds).sort((a, b) => {
-      if (a === null) return 1;
-      if (b === null) return -1;
-      return a - b;
+  // Get unique values for a column
+  const getColumnUniqueValues = (columnKey: keyof StateLaw) => {
+    const values = new Set<string>();
+    laws.forEach(law => {
+      const value = law[columnKey];
+      let displayValue: string;
+
+      if (value === null || value === undefined) {
+        displayValue = 'N/A';
+      } else if (typeof value === 'boolean') {
+        displayValue = value ? 'Yes' : 'No';
+      } else if (typeof value === 'number') {
+        if (columnKey === 'agNotificationTimelineDays' && value === 0) {
+          displayValue = 'Concurrent';
+        } else if (columnKey.includes('Timeline') && value === 0) {
+          displayValue = 'Not Specified';
+        } else {
+          displayValue = value.toLocaleString();
+        }
+      } else {
+        displayValue = String(value);
+      }
+
+      values.add(displayValue);
     });
-  }, [laws]);
+
+    return Array.from(values).sort((a, b) => {
+      if (a === 'N/A') return 1;
+      if (b === 'N/A') return -1;
+      // Try numeric sort first
+      const numA = parseFloat(a.replace(/,/g, ''));
+      const numB = parseFloat(b.replace(/,/g, ''));
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return a.localeCompare(b);
+    });
+  };
+
+  const getDisplayValue = (law: StateLaw, columnKey: keyof StateLaw): string => {
+    const value = law[columnKey];
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'number') {
+      if (columnKey === 'agNotificationTimelineDays' && value === 0) return 'Concurrent';
+      if (columnKey.includes('Timeline') && value === 0) return 'Not Specified';
+      return value.toLocaleString();
+    }
+    return String(value);
+  };
 
   // Apply filters
   const filteredLaws = useMemo(() => {
     return laws.filter(law => {
       // State filter
-      if (selectedStates.size > 0 && !selectedStates.has(law.stateCode)) {
-        return false;
+      if (stateFilter.selectedValues.size > 0) {
+        if (!stateFilter.selectedValues.has(law.stateCode)) {
+          return false;
+        }
       }
 
-      // AG Threshold filter
-      if (agThresholds.size > 0 && !agThresholds.has(law.agNotificationThreshold)) {
-        return false;
-      }
-
-      // Private Action filter
-      if (privateAction !== 'all') {
-        if (privateAction === 'yes' && !law.enforcementPrivateRightOfAction) return false;
-        if (privateAction === 'no' && law.enforcementPrivateRightOfAction) return false;
-      }
-
-      // Risk of Harm filter
-      if (riskOfHarm !== 'all') {
-        if (riskOfHarm === 'yes' && !law.riskOfHarmAnalysisCanEliminateNotification) return false;
-        if (riskOfHarm === 'no' && law.riskOfHarmAnalysisCanEliminateNotification) return false;
-      }
-
-      // Encryption Safe Harbor filter
-      if (encryptionSafeHarbor !== 'all') {
-        if (encryptionSafeHarbor === 'yes' && !law.exemptionEncryptionSafeHarbor) return false;
-        if (encryptionSafeHarbor === 'no' && law.exemptionEncryptionSafeHarbor) return false;
+      // Apply column-specific filters
+      for (const [columnKey, filter] of columnFilters.entries()) {
+        if (filter.selectedValues.size > 0) {
+          const displayValue = getDisplayValue(law, columnKey);
+          if (!filter.selectedValues.has(displayValue)) {
+            return false;
+          }
+        }
       }
 
       return true;
     });
-  }, [laws, selectedStates, agThresholds, privateAction, riskOfHarm, encryptionSafeHarbor]);
+  }, [laws, stateFilter, columnFilters]);
 
   const sortedLaws = useMemo(() => {
     return [...filteredLaws].sort((a, b) => {
@@ -172,7 +211,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
 
       const valA = a[sortKey as keyof StateLaw];
       const valB = b[sortKey as keyof StateLaw];
-      
+
       if (sortKey === 'state') {
         comparison = a.state.localeCompare(b.state);
       } else if (sortKey === 'individualNotificationTimelineDays' || sortKey === 'agNotificationTimelineDays') {
@@ -188,7 +227,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
       } else if (typeof valA === 'string' && typeof valB === 'string') {
         comparison = valA.localeCompare(valB);
       }
-      
+
       if (comparison !== 0) {
         return sortDirection === 'asc' ? comparison : -comparison;
       }
@@ -198,15 +237,185 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
     });
   }, [filteredLaws, sortKey, sortDirection]);
 
-  const hasActiveFilters = selectedStates.size > 0 || agThresholds.size > 0 ||
-    privateAction !== 'all' || riskOfHarm !== 'all' || encryptionSafeHarbor !== 'all';
+  const hasActiveFilters = stateFilter.selectedValues.size > 0 || columnFilters.size > 0;
 
-  const clearFilters = () => {
-    setSelectedStates(new Set());
-    setAgThresholds(new Set());
-    setPrivateAction('all');
-    setRiskOfHarm('all');
-    setEncryptionSafeHarbor('all');
+  const clearAllFilters = () => {
+    setStateFilter({ searchTerm: '', selectedValues: new Set() });
+    setColumnFilters(new Map());
+  };
+
+  const toggleFilterValue = (columnKey: keyof StateLaw | 'state', value: string) => {
+    if (columnKey === 'state') {
+      setStateFilter(prev => {
+        const newSelected = new Set(prev.selectedValues);
+        if (newSelected.has(value)) {
+          newSelected.delete(value);
+        } else {
+          newSelected.add(value);
+        }
+        return { ...prev, selectedValues: newSelected };
+      });
+    } else {
+      setColumnFilters(prev => {
+        const newMap = new Map(prev);
+        const filter = newMap.get(columnKey) || { searchTerm: '', selectedValues: new Set() };
+        const newSelected = new Set(filter.selectedValues);
+        if (newSelected.has(value)) {
+          newSelected.delete(value);
+        } else {
+          newSelected.add(value);
+        }
+
+        if (newSelected.size === 0) {
+          newMap.delete(columnKey);
+        } else {
+          newMap.set(columnKey, { ...filter, selectedValues: newSelected });
+        }
+
+        return newMap;
+      });
+    }
+  };
+
+  const renderColumnFilter = (column: ColumnConfig) => {
+    if (!column.filterable) return null;
+
+    const columnKey = column.key;
+    const isOpen = openFilterColumn === columnKey;
+    const filter = columnFilters.get(columnKey) || { searchTerm: '', selectedValues: new Set() };
+    const uniqueValues = getColumnUniqueValues(columnKey);
+    const hasActiveFilter = filter.selectedValues.size > 0;
+
+    return (
+      <div className="relative inline-block" ref={(el) => el && filterRefs.current.set(columnKey, el)}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenFilterColumn(isOpen ? null : columnKey);
+          }}
+          className={`ml-1 p-1 rounded hover:bg-accent/20 transition-colors ${hasActiveFilter ? 'bg-accent/20' : ''}`}
+          title="Filter column"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 ${hasActiveFilter ? 'text-accent' : 'text-text-secondary'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full mt-1 left-0 w-64 bg-white border-2 border-accent/30 rounded-lg shadow-2xl z-50 p-3 max-h-96 overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-bold text-text-primary">Filter</span>
+              {hasActiveFilter && (
+                <button
+                  onClick={() => {
+                    setColumnFilters(prev => {
+                      const newMap = new Map(prev);
+                      newMap.delete(columnKey);
+                      return newMap;
+                    });
+                  }}
+                  className="text-xs text-accent hover:text-accent-hover font-semibold"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-1 overflow-y-auto max-h-80">
+              {uniqueValues.map(value => {
+                const count = laws.filter(law => getDisplayValue(law, columnKey) === value).length;
+                return (
+                  <label
+                    key={value}
+                    className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filter.selectedValues.has(value)}
+                      onChange={() => toggleFilterValue(columnKey, value)}
+                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent mr-2"
+                    />
+                    <span className="flex-1 text-text-primary">{value}</span>
+                    <span className="text-xs text-text-secondary ml-2">({count})</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderStateFilter = () => {
+    const isOpen = openFilterColumn === 'state';
+    const uniqueStates = laws.map(law => ({ code: law.stateCode, name: law.state }));
+    const hasActiveFilter = stateFilter.selectedValues.size > 0;
+    const filteredStates = stateFilter.searchTerm
+      ? uniqueStates.filter(s =>
+          s.name.toLowerCase().includes(stateFilter.searchTerm.toLowerCase()) ||
+          s.code.toLowerCase().includes(stateFilter.searchTerm.toLowerCase())
+        )
+      : uniqueStates;
+
+    return (
+      <div className="relative inline-block" ref={(el) => el && filterRefs.current.set('state', el)}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenFilterColumn(isOpen ? null : 'state');
+          }}
+          className={`ml-1 p-1 rounded hover:bg-accent/20 transition-colors ${hasActiveFilter ? 'bg-accent/20' : ''}`}
+          title="Filter states"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 ${hasActiveFilter ? 'text-accent' : 'text-text-secondary'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full mt-1 left-0 w-72 bg-white border-2 border-accent/30 rounded-lg shadow-2xl z-50 p-3 max-h-96 overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-bold text-text-primary">Filter States</span>
+              {hasActiveFilter && (
+                <button
+                  onClick={() => setStateFilter({ searchTerm: '', selectedValues: new Set() })}
+                  className="text-xs text-accent hover:text-accent-hover font-semibold"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search states..."
+              value={stateFilter.searchTerm}
+              onChange={(e) => setStateFilter(prev => ({ ...prev, searchTerm: e.target.value }))}
+              className="w-full p-2 border border-border-light rounded-lg mb-2 text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <div className="space-y-1 overflow-y-auto max-h-80">
+              {filteredStates.map(({ code, name }) => (
+                <label
+                  key={code}
+                  className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={stateFilter.selectedValues.has(code)}
+                    onChange={() => toggleFilterValue('state', code)}
+                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent mr-2"
+                  />
+                  <span className="text-text-primary">{name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -219,133 +428,21 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
       </header>
 
       <div className="mb-6 flex items-center gap-3 flex-wrap">
-        {/* Filter Button */}
-        <details className="inline-block" ref={filterRef}>
-          <summary className="list-none px-5 py-3 bg-surface text-on-dark border-2 border-surface rounded-lg font-semibold cursor-pointer hover:bg-surface/90 hover:border-surface/90 transition-all duration-250 flex items-center select-none shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        {hasActiveFilters && (
+          <button
+            onClick={clearAllFilters}
+            className="px-4 py-2 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover transition-all duration-250 shadow-md flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
-            Filter Matrix
-            {hasActiveFilters && (
-              <span className="ml-2 px-2 py-0.5 bg-accent text-white text-xs rounded-full">
-                Active
-              </span>
-            )}
-          </summary>
-          <div className="absolute top-full mt-2 w-96 bg-surface-light border-2 border-border-light rounded-xl shadow-2xl z-50 p-5 max-h-[70vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-lg font-bold text-text-primary">Filter Options</p>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-accent hover:text-accent-hover font-semibold"
-                >
-                  Clear All
-                </button>
-              )}
-            </div>
-
-            {/* State Filter */}
-            <div className="mb-5">
-              <p className="text-sm font-bold text-text-primary mb-2">States/Jurisdictions</p>
-              <div className="max-h-40 overflow-y-auto border border-border-light rounded-lg p-2 bg-white">
-                {laws.map(law => (
-                  <label key={law.stateCode} className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedStates.has(law.stateCode)}
-                      onChange={(e) => {
-                        const newSet = new Set(selectedStates);
-                        if (e.target.checked) {
-                          newSet.add(law.stateCode);
-                        } else {
-                          newSet.delete(law.stateCode);
-                        }
-                        setSelectedStates(newSet);
-                      }}
-                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                    />
-                    <span className="ml-2 text-sm text-text-primary">{law.state}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* AG Threshold Filter */}
-            <div className="mb-5">
-              <p className="text-sm font-bold text-text-primary mb-2">AG Notification Threshold</p>
-              <div className="space-y-1.5">
-                {uniqueAgThresholds.map(threshold => (
-                  <label key={threshold === null ? 'null' : threshold} className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={agThresholds.has(threshold)}
-                      onChange={(e) => {
-                        const newSet = new Set(agThresholds);
-                        if (e.target.checked) {
-                          newSet.add(threshold);
-                        } else {
-                          newSet.delete(threshold);
-                        }
-                        setAgThresholds(newSet);
-                      }}
-                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                    />
-                    <span className="ml-2 text-sm text-text-primary font-medium">
-                      {threshold === null ? 'N/A' : threshold.toLocaleString()}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Boolean Filters */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-bold text-text-primary mb-2">Private Right of Action</p>
-                <select
-                  value={privateAction}
-                  onChange={(e) => setPrivateAction(e.target.value as 'all' | 'yes' | 'no')}
-                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
-                >
-                  <option value="all">All</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-
-              <div>
-                <p className="text-sm font-bold text-text-primary mb-2">Risk of Harm Analysis</p>
-                <select
-                  value={riskOfHarm}
-                  onChange={(e) => setRiskOfHarm(e.target.value as 'all' | 'yes' | 'no')}
-                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
-                >
-                  <option value="all">All</option>
-                  <option value="yes">Allowed</option>
-                  <option value="no">Not Allowed</option>
-                </select>
-              </div>
-
-              <div>
-                <p className="text-sm font-bold text-text-primary mb-2">Encryption Safe Harbor</p>
-                <select
-                  value={encryptionSafeHarbor}
-                  onChange={(e) => setEncryptionSafeHarbor(e.target.value as 'all' | 'yes' | 'no')}
-                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
-                >
-                  <option value="all">All</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </details>
+            Clear All Filters ({stateFilter.selectedValues.size + Array.from(columnFilters.values()).reduce((sum, f) => sum + f.selectedValues.size, 0)})
+          </button>
+        )}
 
         {/* Customize Columns Button */}
         <details className="inline-block" ref={detailsRef}>
-          <summary className="list-none px-5 py-3 bg-accent text-white border-2 border-accent rounded-lg font-semibold cursor-pointer hover:bg-accent-hover hover:border-accent-hover transition-all duration-250 flex items-center select-none shadow-md">
+          <summary className="list-none px-5 py-3 bg-surface text-on-dark border-2 border-surface rounded-lg font-semibold cursor-pointer hover:bg-surface/90 hover:border-surface/90 transition-all duration-250 flex items-center select-none shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
               <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
@@ -369,6 +466,10 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
             </div>
           </div>
         </details>
+
+        <div className="text-sm text-text-secondary">
+          Showing {sortedLaws.length} of {laws.length} jurisdictions
+        </div>
       </div>
 
       <div className="overflow-auto border-2 border-border-light rounded-xl shadow-card bg-surface-light" style={{ maxHeight: '70vh' }}>
@@ -392,6 +493,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
                                 {sortDirection === 'asc' ? <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /> : <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />}
                                 </svg>
                             )}
+                            {renderStateFilter()}
                         </div>
                     </th>
                     {visibleColumns.map(col => (
@@ -405,13 +507,14 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
                             tabIndex={col.sortable ? 0 : undefined}
                             aria-label={col.sortable ? `Sort by ${col.label} ${sortKey === col.key ? (sortDirection === 'asc' ? 'descending' : 'ascending') : ''}` : col.label}
                         >
-                             <div className={`flex items-center gap-2 ${col.isLongText ? 'justify-start' : 'justify-center'}`}>
+                             <div className={`flex items-center gap-1 ${col.isLongText ? 'justify-start' : 'justify-center'}`}>
                                 <span>{col.label}</span>
                                 {col.sortable && sortKey === col.key && (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0 text-accent" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                     {sortDirection === 'asc' ? <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /> : <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />}
                                     </svg>
                                 )}
+                                {renderColumnFilter(col)}
                             </div>
                         </th>
                     ))}
