@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AssessmentResult, AssessmentData } from '../../types';
 import AssessmentChartView from './AssessmentChartView';
-import AssessmentTimelineView from './AssessmentTimelineView';
+import AssessmentCalendarView from './AssessmentCalendarView';
 import AssessmentDashboardView from './AssessmentDashboardView';
 
 interface AssessmentResultsProps {
@@ -11,7 +11,7 @@ interface AssessmentResultsProps {
   onViewSummary: (stateCode: string) => void;
 }
 
-type View = 'dashboard' | 'summary' | 'chart' | 'timeline';
+type View = 'dashboard' | 'summary' | 'chart' | 'calendar';
 
 const ResultIndicator: React.FC<{ result: 'Yes' | 'No' | 'Conditional' }> = ({ result }) => {
   const baseClasses = "px-2.5 py-1 text-xs font-bold rounded-full inline-block leading-none";
@@ -205,18 +205,18 @@ const AssessmentResults: React.FC<AssessmentResultsProps> = ({ results, assessme
              Chart View
            </button>
            <button
-             onClick={() => setView('timeline')}
-             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'timeline' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
+             onClick={() => setView('calendar')}
+             className={`px-3 py-1 text-sm font-semibold rounded-md transition ${view === 'calendar' ? 'bg-white shadow-sm text-accent' : 'text-gray-600 hover:bg-gray-200'}`}
            >
-             Timeline View
+             Calendar View
            </button>
         </div>
       </div>
       
       {view === 'dashboard' ? <AssessmentDashboardView results={results} discoveryDate={discoveryDate} onViewSummary={onViewSummary} /> :
-       view === 'summary' ? renderSummaryView() : 
-       view === 'chart' ? <AssessmentChartView results={results} discoveryDate={discoveryDate} assessmentData={assessmentData} onViewSummary={onViewSummary} /> : 
-       <AssessmentTimelineView results={results} discoveryDate={discoveryDate} onViewSummary={onViewSummary} />}
+       view === 'summary' ? renderSummaryView() :
+       view === 'chart' ? <AssessmentChartView results={results} discoveryDate={discoveryDate} assessmentData={assessmentData} onViewSummary={onViewSummary} /> :
+       <AssessmentCalendarView results={results} discoveryDate={discoveryDate} onViewSummary={onViewSummary} />}
       
        <div className="mt-6 p-4 bg-gray-100 rounded-md text-sm text-gray-600 border border-border-light">
         <strong>Disclaimer:</strong> This tool provides a high-level, preliminary assessment based on the provided data and should not be considered legal advice. Always consult with qualified legal counsel and review the full statutes for definitive guidance.

@@ -60,6 +60,14 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
     ALL_COLUMNS.filter(c => c.defaultVisible).map(c => c.key)
   );
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const filterRef = useRef<HTMLDetailsElement>(null);
+
+  // Filter state
+  const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set());
+  const [agThresholds, setAgThresholds] = useState<Set<number | null>>(new Set());
+  const [privateAction, setPrivateAction] = useState<'all' | 'yes' | 'no'>('all');
+  const [riskOfHarm, setRiskOfHarm] = useState<'all' | 'yes' | 'no'>('all');
+  const [encryptionSafeHarbor, setEncryptionSafeHarbor] = useState<'all' | 'yes' | 'no'>('all');
 
   // Close details dropdown on outside click or Escape key
   useEffect(() => {
@@ -67,10 +75,18 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
         detailsRef.current.removeAttribute('open');
       }
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        filterRef.current.removeAttribute('open');
+      }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && detailsRef.current?.hasAttribute('open')) {
-        detailsRef.current.removeAttribute('open');
+      if (event.key === 'Escape') {
+        if (detailsRef.current?.hasAttribute('open')) {
+          detailsRef.current.removeAttribute('open');
+        }
+        if (filterRef.current?.hasAttribute('open')) {
+          filterRef.current.removeAttribute('open');
+        }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -104,8 +120,54 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
     return ALL_COLUMNS.filter(c => visibleSet.has(c.key));
   }, [visibleColumnKeys]);
 
+  // Get unique AG thresholds for filter options
+  const uniqueAgThresholds = useMemo(() => {
+    const thresholds = new Set<number | null>();
+    laws.forEach(law => thresholds.add(law.agNotificationThreshold));
+    return Array.from(thresholds).sort((a, b) => {
+      if (a === null) return 1;
+      if (b === null) return -1;
+      return a - b;
+    });
+  }, [laws]);
+
+  // Apply filters
+  const filteredLaws = useMemo(() => {
+    return laws.filter(law => {
+      // State filter
+      if (selectedStates.size > 0 && !selectedStates.has(law.stateCode)) {
+        return false;
+      }
+
+      // AG Threshold filter
+      if (agThresholds.size > 0 && !agThresholds.has(law.agNotificationThreshold)) {
+        return false;
+      }
+
+      // Private Action filter
+      if (privateAction !== 'all') {
+        if (privateAction === 'yes' && !law.enforcementPrivateRightOfAction) return false;
+        if (privateAction === 'no' && law.enforcementPrivateRightOfAction) return false;
+      }
+
+      // Risk of Harm filter
+      if (riskOfHarm !== 'all') {
+        if (riskOfHarm === 'yes' && !law.riskOfHarmAnalysisCanEliminateNotification) return false;
+        if (riskOfHarm === 'no' && law.riskOfHarmAnalysisCanEliminateNotification) return false;
+      }
+
+      // Encryption Safe Harbor filter
+      if (encryptionSafeHarbor !== 'all') {
+        if (encryptionSafeHarbor === 'yes' && !law.exemptionEncryptionSafeHarbor) return false;
+        if (encryptionSafeHarbor === 'no' && law.exemptionEncryptionSafeHarbor) return false;
+      }
+
+      return true;
+    });
+  }, [laws, selectedStates, agThresholds, privateAction, riskOfHarm, encryptionSafeHarbor]);
+
   const sortedLaws = useMemo(() => {
-    return [...laws].sort((a, b) => {
+    return [...filteredLaws].sort((a, b) => {
       let comparison = 0;
 
       const valA = a[sortKey as keyof StateLaw];
@@ -134,7 +196,18 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
       // Secondary sort by state name
       return a.state.localeCompare(b.state);
     });
-  }, [laws, sortKey, sortDirection]);
+  }, [filteredLaws, sortKey, sortDirection]);
+
+  const hasActiveFilters = selectedStates.size > 0 || agThresholds.size > 0 ||
+    privateAction !== 'all' || riskOfHarm !== 'all' || encryptionSafeHarbor !== 'all';
+
+  const clearFilters = () => {
+    setSelectedStates(new Set());
+    setAgThresholds(new Set());
+    setPrivateAction('all');
+    setRiskOfHarm('all');
+    setEncryptionSafeHarbor('all');
+  };
 
   return (
     <div className="p-4 md:p-8 animate-slide-in">
@@ -145,7 +218,132 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
         </p>
       </header>
 
-       <div className="mb-6 relative">
+      <div className="mb-6 flex items-center gap-3 flex-wrap">
+        {/* Filter Button */}
+        <details className="inline-block" ref={filterRef}>
+          <summary className="list-none px-5 py-3 bg-surface text-on-dark border-2 border-surface rounded-lg font-semibold cursor-pointer hover:bg-surface/90 hover:border-surface/90 transition-all duration-250 flex items-center select-none shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filter Matrix
+            {hasActiveFilters && (
+              <span className="ml-2 px-2 py-0.5 bg-accent text-white text-xs rounded-full">
+                Active
+              </span>
+            )}
+          </summary>
+          <div className="absolute top-full mt-2 w-96 bg-surface-light border-2 border-border-light rounded-xl shadow-2xl z-50 p-5 max-h-[70vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-lg font-bold text-text-primary">Filter Options</p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-accent hover:text-accent-hover font-semibold"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
+            {/* State Filter */}
+            <div className="mb-5">
+              <p className="text-sm font-bold text-text-primary mb-2">States/Jurisdictions</p>
+              <div className="max-h-40 overflow-y-auto border border-border-light rounded-lg p-2 bg-white">
+                {laws.map(law => (
+                  <label key={law.stateCode} className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedStates.has(law.stateCode)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedStates);
+                        if (e.target.checked) {
+                          newSet.add(law.stateCode);
+                        } else {
+                          newSet.delete(law.stateCode);
+                        }
+                        setSelectedStates(newSet);
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                    />
+                    <span className="ml-2 text-sm text-text-primary">{law.state}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* AG Threshold Filter */}
+            <div className="mb-5">
+              <p className="text-sm font-bold text-text-primary mb-2">AG Notification Threshold</p>
+              <div className="space-y-1.5">
+                {uniqueAgThresholds.map(threshold => (
+                  <label key={threshold === null ? 'null' : threshold} className="flex items-center p-1.5 hover:bg-accent/5 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agThresholds.has(threshold)}
+                      onChange={(e) => {
+                        const newSet = new Set(agThresholds);
+                        if (e.target.checked) {
+                          newSet.add(threshold);
+                        } else {
+                          newSet.delete(threshold);
+                        }
+                        setAgThresholds(newSet);
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                    />
+                    <span className="ml-2 text-sm text-text-primary font-medium">
+                      {threshold === null ? 'N/A' : threshold.toLocaleString()}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Boolean Filters */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-bold text-text-primary mb-2">Private Right of Action</p>
+                <select
+                  value={privateAction}
+                  onChange={(e) => setPrivateAction(e.target.value as 'all' | 'yes' | 'no')}
+                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                >
+                  <option value="all">All</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-text-primary mb-2">Risk of Harm Analysis</p>
+                <select
+                  value={riskOfHarm}
+                  onChange={(e) => setRiskOfHarm(e.target.value as 'all' | 'yes' | 'no')}
+                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                >
+                  <option value="all">All</option>
+                  <option value="yes">Allowed</option>
+                  <option value="no">Not Allowed</option>
+                </select>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-text-primary mb-2">Encryption Safe Harbor</p>
+                <select
+                  value={encryptionSafeHarbor}
+                  onChange={(e) => setEncryptionSafeHarbor(e.target.value as 'all' | 'yes' | 'no')}
+                  className="w-full p-2 border-2 border-border-light rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                >
+                  <option value="all">All</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        {/* Customize Columns Button */}
         <details className="inline-block" ref={detailsRef}>
           <summary className="list-none px-5 py-3 bg-accent text-white border-2 border-accent rounded-lg font-semibold cursor-pointer hover:bg-accent-hover hover:border-accent-hover transition-all duration-250 flex items-center select-none shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
