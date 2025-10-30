@@ -8,10 +8,6 @@ import Welcome from './components/Welcome';
 import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWizard';
 import MatrixView from './components/MatrixView';
 import ErrorBoundary from './components/ErrorBoundary';
-import StateCardGallery from './components/StateCardGallery';
-import EnhancedSearchBar from './components/EnhancedSearchBar';
-import SelectedStatesBar from './components/SelectedStatesBar';
-import QuickCompareSheet from './components/QuickCompareSheet';
 import { createLawIndex } from './services/dataIndexService';
 import { loadAppState, saveAppState } from './services/stateService';
 import { highlightSearchTerm } from './utils/searchHighlight';
@@ -41,11 +37,6 @@ const App: React.FC = () => {
     stage: 'Fetching law data...',
     percent: 0
   });
-  const [isQuickCompareOpen, setIsQuickCompareOpen] = useState(false);
-
-  // Track what view mode for explorer (gallery, detail, or comparison)
-  const [explorerView, setExplorerView] = useState<'gallery' | 'detail' | 'comparison'>('gallery');
-  const [detailStateCode, setDetailStateCode] = useState<string | null>(null);
 
   const [appState, setAppState] = useState<AppState>(() => {
     return loadAppState() || defaultAppState;
@@ -98,7 +89,7 @@ const App: React.FC = () => {
   const handleFilterChange = (filterName: keyof Filters, value: any) => {
     setAppState(prev => ({ ...prev, filters: { ...prev.filters, [filterName]: value } }));
   };
-  
+
   const handleResetFilters = () => {
     setAppState(prev => ({ ...prev, searchTerm: '', filters: initialFilters }));
   };
@@ -110,7 +101,7 @@ const App: React.FC = () => {
   const setViewMode = (mode: ViewMode) => {
     setAppState(prev => ({ ...prev, viewMode: mode }));
   };
-  
+
   const handleViewJurisdictionSummary = (stateCode: string) => {
     setAppState(prev => ({
         ...prev,
@@ -137,7 +128,7 @@ const App: React.FC = () => {
         const targetSet = appState.filters.encryptionSafeHarbor === 'yes' ? lawIndex.encryptionSafeHarborYes : lawIndex.encryptionSafeHarborNo;
         resultSet = new Set([...resultSet].filter(x => targetSet.has(x)));
     }
-    
+
     let laws = Array.from(resultSet).map(code => lawIndex.byStateCode.get(code)!).filter(Boolean);
 
     // Apply numeric and text filters on the reduced set
@@ -148,7 +139,7 @@ const App: React.FC = () => {
       })
       .filter(law => { // AG Threshold filter
         if (appState.filters.agThresholdMax === null) return true;
-        if (law.agNotificationThreshold === null) return false; 
+        if (law.agNotificationThreshold === null) return false;
         return law.agNotificationThreshold <= appState.filters.agThresholdMax;
       });
 
@@ -161,14 +152,14 @@ const App: React.FC = () => {
         delete law.searchSnippet;
         const stateMatch = law.state.toLowerCase().includes(lowercasedTerm) || law.stateCode.toLowerCase().includes(lowercasedTerm);
         const contentMatchIndex = law.markdownContent.toLowerCase().indexOf(lowercasedTerm);
-        
+
         if (stateMatch || contentMatchIndex !== -1) {
           let snippet = '';
           if (!stateMatch && contentMatchIndex !== -1) {
             const snippetRadius = 70;
             const start = Math.max(0, contentMatchIndex - snippetRadius);
             const end = Math.min(law.markdownContent.length, contentMatchIndex + lowercasedTerm.length + snippetRadius);
-            
+
             let rawSnippet = law.markdownContent.substring(start, end);
             if (start > 0) rawSnippet = '...' + rawSnippet;
             if (end < law.markdownContent.length) rawSnippet += '...';
@@ -189,79 +180,14 @@ const App: React.FC = () => {
     return appState.selectedStateCodes.map(code => lawIndex.byStateCode.get(code)!).filter(Boolean);
   }, [appState.selectedStateCodes, lawIndex]);
 
-  // Auto-open quick compare sheet when 2+ states are selected in gallery view
-  useEffect(() => {
-    if (explorerView === 'gallery' && selectedLaws.length >= 2) {
-      setIsQuickCompareOpen(true);
-    } else {
-      setIsQuickCompareOpen(false);
-    }
-  }, [selectedLaws.length, explorerView]);
-
-  const handleViewState = (stateCode: string) => {
-    setDetailStateCode(stateCode);
-    setExplorerView('detail');
-  };
-
-  const handleBackToGallery = () => {
-    setExplorerView('gallery');
-    setDetailStateCode(null);
-  };
-
-  const handleViewComparison = () => {
-    if (selectedLaws.length >= 2) {
-      setExplorerView('comparison');
-      setIsQuickCompareOpen(false);
-    }
-  };
-
   const renderExplorerContent = () => {
-    if (explorerView === 'detail' && detailStateCode) {
-      const law = lawIndex?.byStateCode.get(detailStateCode);
-      if (law) {
-        return (
-          <div className="p-4 md:p-8">
-            <button
-              onClick={handleBackToGallery}
-              className="mb-4 flex items-center gap-2 text-accent hover:text-accent-hover font-semibold transition"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-              Back to Gallery
-            </button>
-            <StateDetailView law={law} />
-          </div>
-        );
-      }
+    if (selectedLaws.length === 0) {
+      return <Welcome laws={allLaws} />;
     }
-
-    if (explorerView === 'comparison' && selectedLaws.length >= 2) {
-      return (
-        <div className="p-4 md:p-8">
-          <button
-            onClick={handleBackToGallery}
-            className="mb-4 flex items-center gap-2 text-accent hover:text-accent-hover font-semibold transition"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-            Back to Gallery
-          </button>
-          <ComparisonView laws={selectedLaws} />
-        </div>
-      );
+    if (selectedLaws.length === 1) {
+      return <StateDetailView law={selectedLaws[0]} />;
     }
-
-    // Default: Show gallery
-    return (
-      <StateCardGallery
-        laws={filteredLaws}
-        selectedStateCodes={appState.selectedStateCodes}
-        onSelectState={handleSelectState}
-        onViewState={handleViewState}
-      />
-    );
+    return <ComparisonView laws={selectedLaws} />;
   };
 
   const renderContent = () => {
@@ -295,40 +221,24 @@ const App: React.FC = () => {
     switch(appState.viewMode) {
       case 'explorer':
         return (
-          <>
-            {/* Enhanced Search Bar */}
-            <EnhancedSearchBar
-              searchTerm={appState.searchTerm}
-              onSearchChange={handleSearchChange}
-              filters={appState.filters}
-              onFilterChange={handleFilterChange}
-              onResetFilters={handleResetFilters}
-              resultCount={filteredLaws.length}
-            />
-
-            {/* Selected States Bar (only show in gallery view when states are selected) */}
-            {explorerView === 'gallery' && appState.selectedStateCodes.length > 0 && (
-              <SelectedStatesBar
-                selectedLaws={selectedLaws}
-                onRemoveState={handleSelectState}
-                onClearAll={handleClearSelection}
-                onViewComparison={handleViewComparison}
+          <div className="flex flex-col md:flex-row">
+            <aside className="w-full md:w-96 lg:w-[420px] bg-surface border-r border-border-dark p-4 md:p-6 sticky top-[88px] h-screen-minus-header overflow-y-auto text-on-dark">
+              <StateSelector
+                laws={filteredLaws}
+                selectedStateCodes={appState.selectedStateCodes}
+                onSelectState={handleSelectState}
+                onClearSelection={handleClearSelection}
+                searchTerm={appState.searchTerm}
+                onSearchChange={handleSearchChange}
+                filters={appState.filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
               />
-            )}
-
-            {/* Main Content */}
-            <main className="overflow-y-auto">
+            </aside>
+            <main className="flex-1 p-4 md:p-12 overflow-y-auto h-screen-minus-header">
               {renderExplorerContent()}
             </main>
-
-            {/* Quick Compare Sheet (only show in gallery view when 2+ states selected) */}
-            <QuickCompareSheet
-              laws={selectedLaws}
-              isOpen={isQuickCompareOpen && explorerView === 'gallery' && selectedLaws.length >= 2}
-              onClose={() => setIsQuickCompareOpen(false)}
-              onViewFull={handleViewComparison}
-            />
-          </>
+          </div>
         );
       case 'assessment':
         return <BreachAssessmentWizard laws={allLaws} onViewSummary={handleViewJurisdictionSummary} />;
