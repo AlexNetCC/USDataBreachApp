@@ -40,6 +40,11 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       return processed;
     };
 
+    const getIndentLevel = (line: string): number => {
+      const match = line.match(/^(\s*)/);
+      return match ? match[1].length : 0;
+    };
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmedLine = line.trim();
@@ -90,15 +95,70 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         continue;
       }
 
-      // List item
+      // List item - Check for "Major Amendments" to make collapsible
       if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
         flushParagraph();
-        if (!inList) {
-          result.push('<ul class="mb-4 space-y-2">');
-          inList = true;
-        }
+
         const itemText = trimmedLine.substring(2).trim();
-        result.push(`<li class="ml-6 pl-2 text-text-secondary leading-relaxed list-disc">${processInlineMarkdown(itemText)}</li>`);
+        const currentIndent = getIndentLevel(line);
+
+        // Check if this is a "Major Amendments" item
+        if (itemText.includes('Major Amendments:')) {
+          if (!inList) {
+            result.push('<ul class="mb-4 space-y-2">');
+            inList = true;
+          }
+
+          // Look ahead for nested items
+          const nestedItems: string[] = [];
+          let j = i + 1;
+          while (j < lines.length) {
+            const nextLine = lines[j];
+            const nextTrimmed = nextLine.trim();
+            const nextIndent = getIndentLevel(nextLine);
+
+            // Check if it's a nested list item (more indented)
+            if (nextIndent > currentIndent && (nextTrimmed.startsWith('- ') || nextTrimmed.startsWith('* '))) {
+              const nestedText = nextTrimmed.substring(2).trim();
+              nestedItems.push(processInlineMarkdown(nestedText));
+              j++;
+            } else if (nextTrimmed === '') {
+              // Skip empty lines but continue looking
+              j++;
+            } else {
+              // Stop when we hit something that's not nested or empty
+              break;
+            }
+          }
+
+          // Create collapsible section
+          if (nestedItems.length > 0) {
+            result.push(`
+              <li class="ml-6 pl-2 text-text-secondary leading-relaxed list-disc">
+                ${processInlineMarkdown(itemText)}
+                <details class="mt-2 ml-4">
+                  <summary class="cursor-pointer text-sm text-accent hover:text-accent-hover font-medium list-none select-none">
+                    View ${nestedItems.length} amendment${nestedItems.length > 1 ? 's' : ''} →
+                  </summary>
+                  <ul class="mt-2 space-y-1.5 pl-4">
+                    ${nestedItems.map(item => `<li class="text-sm text-text-secondary leading-relaxed list-disc">${item}</li>`).join('\n')}
+                  </ul>
+                </details>
+              </li>
+            `);
+            i = j - 1; // Skip the nested items we already processed
+          } else {
+            // No nested items, render normally
+            result.push(`<li class="ml-6 pl-2 text-text-secondary leading-relaxed list-disc">${processInlineMarkdown(itemText)}</li>`);
+          }
+        } else {
+          // Regular list item
+          if (!inList) {
+            result.push('<ul class="mb-4 space-y-2">');
+            inList = true;
+          }
+          result.push(`<li class="ml-6 pl-2 text-text-secondary leading-relaxed list-disc">${processInlineMarkdown(itemText)}</li>`);
+        }
         continue;
       }
 
