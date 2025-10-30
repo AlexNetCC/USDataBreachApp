@@ -123,6 +123,8 @@ export interface StateLaw {
   agNotificationThresholdDescription: string | null;
   agNotificationTimelineDays: number | null;
   agNotificationTimelineDescription: string | null;
+  agNotificationTimelineRelativeTo?: 'breach_discovery' | 'individual_notice' | null;
+  agNotificationTimelineRelativeDescription?: string | null;
   agNotificationRecipients: string | null;
   agNotificationContents: string[];
   craNotificationIsRequired: boolean;

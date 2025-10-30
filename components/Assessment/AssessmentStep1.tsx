@@ -92,14 +92,28 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
   }, [searchTerm, laws, addedStateCodes]);
 
   const handleSubmit = () => {
-    // FIX: Explicitly type `[key, val]` to prevent `val` from being inferred as `unknown`.
     const numericCounts = Object.entries(counts).reduce((acc, [key, val]: [string, string]) => {
       const num = parseInt(val, 10);
-      if (!isNaN(num) && num > 0) {
-        acc[key] = num;
+
+      // Validation
+      if (isNaN(num) || num < 1) {
+        return acc; // Skip invalid entries
       }
+      if (num > 1_000_000_000) {
+        const lawName = laws.find(l => l.stateCode === key)?.state || key;
+        alert(`Affected count for ${lawName} exceeds maximum (1 billion). Please verify.`);
+        return acc;
+      }
+
+      acc[key] = num;
       return acc;
     }, {} as { [key: string]: number });
+
+    if (Object.keys(numericCounts).length === 0) {
+      alert('Please enter at least one valid affected count greater than 0.');
+      return;
+    }
+
     onNext(numericCounts);
   };
   
@@ -207,6 +221,8 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
                                     onChange={e => handleCountChange(law.stateCode, e.target.value)}
                                     placeholder="Count"
                                     min="1"
+                                    max="1000000000"
+                                    step="1"
                                     className="w-32 p-2 border border-border-light rounded-md bg-surface-light text-text-primary text-right focus:ring-1 focus:ring-accent"
                                 />
                                 <button onClick={() => handleRemoveState(law.stateCode)} className="text-gray-400 hover:text-red-600 p-1 rounded-full transition-colors" aria-label={`Remove ${law.state}`}>

@@ -41,11 +41,26 @@ const BreachAssessmentWizard: React.FC<BreachAssessmentWizardProps> = ({ laws, o
     }
   }, []);
 
-  const saveAssessmentsToStorage = (updatedAssessments: SavedAssessment[]) => {
+  const saveAssessmentsToStorage = (updatedAssessments: SavedAssessment[]): boolean => {
     try {
-      localStorage.setItem(ASSESSMENT_STORAGE_KEY, JSON.stringify(updatedAssessments));
-    } catch (e) {
-      console.error("Failed to save assessments:", e);
+      const serialized = JSON.stringify(updatedAssessments);
+
+      // Check size before saving (5MB typical limit, warn at 4.5MB)
+      if (serialized.length > 4.5 * 1024 * 1024) {
+        alert('Assessment data is too large. Consider deleting older assessments to free up space.');
+        return false;
+      }
+
+      localStorage.setItem(ASSESSMENT_STORAGE_KEY, serialized);
+      return true;
+    } catch (e: any) {
+      if (e.name === 'QuotaExceededError') {
+        alert('Storage limit reached. Please delete old assessments to free up space.');
+      } else {
+        console.error("Failed to save assessments:", e);
+        alert('Failed to save assessment. Please try again.');
+      }
+      return false;
     }
   };
 

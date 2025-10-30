@@ -7,8 +7,14 @@ import ComparisonView from './components/ComparisonView';
 import Welcome from './components/Welcome';
 import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWizard';
 import MatrixView from './components/MatrixView';
+import ErrorBoundary from './components/ErrorBoundary';
+import StateCardGallery from './components/StateCardGallery';
+import EnhancedSearchBar from './components/EnhancedSearchBar';
+import SelectedStatesBar from './components/SelectedStatesBar';
+import QuickCompareSheet from './components/QuickCompareSheet';
 import { createLawIndex } from './services/dataIndexService';
 import { loadAppState, saveAppState } from './services/stateService';
+import { highlightSearchTerm } from './utils/searchHighlight';
 
 const initialFilters: Filters = {
   timelineMaxDays: null,
@@ -31,6 +37,11 @@ const App: React.FC = () => {
   const [lawIndex, setLawIndex] = useState<LawIndex | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState<{stage: string, percent: number}>({
+    stage: 'Fetching law data...',
+    percent: 0
+  });
+  const [isQuickCompareOpen, setIsQuickCompareOpen] = useState(false);
 
   const [appState, setAppState] = useState<AppState>(() => {
     return loadAppState() || defaultAppState;
@@ -40,17 +51,32 @@ const App: React.FC = () => {
     saveAppState(appState);
   }, [appState]);
 
+  // Auto-open quick compare sheet when 2+ states are selected in gallery view
+  useEffect(() => {
+    if (explorerView === 'gallery' && selectedLaws.length >= 2) {
+      setIsQuickCompareOpen(true);
+    } else {
+      setIsQuickCompareOpen(false);
+    }
+  }, [selectedLaws.length, explorerView]);
+
   useEffect(() => {
     const fetchLaws = async () => {
       try {
+        setLoadingProgress({ stage: 'Fetching law data...', percent: 25 });
         const res = await fetch('laws.json');
         if (!res.ok) {
           throw new Error(`Failed to fetch laws.json: ${res.statusText}`);
         }
+
+        setLoadingProgress({ stage: 'Parsing jurisdictions...', percent: 50 });
         const laws: StateLaw[] = await res.json();
-        
+
+        setLoadingProgress({ stage: 'Building search index...', percent: 75 });
         setAllLaws(laws.sort((a, b) => a.state.localeCompare(b.state)));
         setLawIndex(createLawIndex(laws));
+
+        setLoadingProgress({ stage: 'Ready!', percent: 100 });
       } catch (e: any) {
         setError(`Failed to load law files: ${e.message}`);
       } finally {
@@ -152,8 +178,7 @@ const App: React.FC = () => {
             if (start > 0) rawSnippet = '...' + rawSnippet;
             if (end < law.markdownContent.length) rawSnippet += '...';
 
-            const regex = new RegExp(appState.searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
-            snippet = rawSnippet.replace(regex, (match) => `<mark class="bg-accent/20 text-text-primary px-1 rounded">${match}</mark>`);
+            snippet = highlightSearchTerm(rawSnippet, appState.searchTerm);
           }
           searchResults.push({ ...law, searchSnippet: snippet || undefined });
         }
@@ -169,19 +194,99 @@ const App: React.FC = () => {
     return appState.selectedStateCodes.map(code => lawIndex.byStateCode.get(code)!).filter(Boolean);
   }, [appState.selectedStateCodes, lawIndex]);
 
+  // Track what view mode for explorer (gallery, detail, or comparison)
+  const [explorerView, setExplorerView] = useState<'gallery' | 'detail' | 'comparison'>('gallery');
+  const [detailStateCode, setDetailStateCode] = useState<string | null>(null);
+
+  const handleViewState = (stateCode: string) => {
+    setDetailStateCode(stateCode);
+    setExplorerView('detail');
+  };
+
+  const handleBackToGallery = () => {
+    setExplorerView('gallery');
+    setDetailStateCode(null);
+  };
+
+  const handleViewComparison = () => {
+    if (selectedLaws.length >= 2) {
+      setExplorerView('comparison');
+      setIsQuickCompareOpen(false);
+    }
+  };
+
   const renderExplorerContent = () => {
-    if (selectedLaws.length === 0) {
-      return <Welcome laws={allLaws} />;
+    if (explorerView === 'detail' && detailStateCode) {
+      const law = lawIndex?.byStateCode.get(detailStateCode);
+      if (law) {
+        return (
+          <div className="p-4 md:p-8">
+            <button
+              onClick={handleBackToGallery}
+              className="mb-4 flex items-center gap-2 text-accent hover:text-accent-hover font-semibold transition"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+              Back to Gallery
+            </button>
+            <StateDetailView law={law} />
+          </div>
+        );
+      }
     }
-    if (selectedLaws.length === 1) {
-      return <StateDetailView law={selectedLaws[0]} />;
+
+    if (explorerView === 'comparison' && selectedLaws.length >= 2) {
+      return (
+        <div className="p-4 md:p-8">
+          <button
+            onClick={handleBackToGallery}
+            className="mb-4 flex items-center gap-2 text-accent hover:text-accent-hover font-semibold transition"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+            Back to Gallery
+          </button>
+          <ComparisonView laws={selectedLaws} />
+        </div>
+      );
     }
-    return <ComparisonView laws={selectedLaws} />;
+
+    // Default: Show gallery
+    return (
+      <StateCardGallery
+        laws={filteredLaws}
+        selectedStateCodes={appState.selectedStateCodes}
+        onSelectState={handleSelectState}
+        onViewState={handleViewState}
+      />
+    );
   };
 
   const renderContent = () => {
     if (isLoading || !lawIndex) {
-      return <div className="flex justify-center items-center h-screen-minus-header"><p>Loading and parsing 52 jurisdiction summaries...</p></div>;
+      return (
+        <div className="flex flex-col justify-center items-center h-screen-minus-header">
+          <div className="w-64">
+            <div className="mb-4">
+              <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+            <p className="text-center text-text-primary font-semibold mb-2">
+              {loadingProgress.stage}
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-accent h-2 rounded-full transition-all duration-300"
+                style={{ width: `${loadingProgress.percent}%` }}
+              />
+            </div>
+            <p className="text-center text-text-secondary text-sm mt-2">
+              {loadingProgress.percent}%
+            </p>
+          </div>
+        </div>
+      );
     }
     if (error) {
       return <div className="flex justify-center items-center h-screen-minus-header"><p className="text-red-600">{error}</p></div>;
@@ -190,24 +295,40 @@ const App: React.FC = () => {
     switch(appState.viewMode) {
       case 'explorer':
         return (
-          <div className="flex flex-col md:flex-row">
-            <aside className="w-full md:w-96 lg:w-[420px] bg-surface border-r border-border-dark p-4 md:p-6 sticky top-[88px] h-screen-minus-header overflow-y-auto text-on-dark">
-              <StateSelector
-                laws={filteredLaws}
-                selectedStateCodes={appState.selectedStateCodes}
-                onSelectState={handleSelectState}
-                onClearSelection={handleClearSelection}
-                searchTerm={appState.searchTerm}
-                onSearchChange={handleSearchChange}
-                filters={appState.filters}
-                onFilterChange={handleFilterChange}
-                onResetFilters={handleResetFilters}
+          <>
+            {/* Enhanced Search Bar */}
+            <EnhancedSearchBar
+              searchTerm={appState.searchTerm}
+              onSearchChange={handleSearchChange}
+              filters={appState.filters}
+              onFilterChange={handleFilterChange}
+              onResetFilters={handleResetFilters}
+              resultCount={filteredLaws.length}
+            />
+
+            {/* Selected States Bar (only show in gallery view when states are selected) */}
+            {explorerView === 'gallery' && appState.selectedStateCodes.length > 0 && (
+              <SelectedStatesBar
+                selectedLaws={selectedLaws}
+                onRemoveState={handleSelectState}
+                onClearAll={handleClearSelection}
+                onViewComparison={handleViewComparison}
               />
-            </aside>
-            <main className="flex-1 p-4 md:p-12 overflow-y-auto h-screen-minus-header">
+            )}
+
+            {/* Main Content */}
+            <main className="overflow-y-auto">
               {renderExplorerContent()}
             </main>
-          </div>
+
+            {/* Quick Compare Sheet (only show in gallery view when 2+ states selected) */}
+            <QuickCompareSheet
+              laws={selectedLaws}
+              isOpen={isQuickCompareOpen && explorerView === 'gallery' && selectedLaws.length >= 2}
+              onClose={() => setIsQuickCompareOpen(false)}
+              onViewFull={handleViewComparison}
+            />
+          </>
         );
       case 'assessment':
         return <BreachAssessmentWizard laws={allLaws} onViewSummary={handleViewJurisdictionSummary} />;
@@ -254,8 +375,10 @@ const App: React.FC = () => {
           </nav>
         </div>
       </header>
-      
-      {renderContent()}
+
+      <ErrorBoundary>
+        {renderContent()}
+      </ErrorBoundary>
     </div>
   );
 };

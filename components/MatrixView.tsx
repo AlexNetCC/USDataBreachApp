@@ -61,16 +61,23 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
   );
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
-  // Close details dropdown on outside click
+  // Close details dropdown on outside click or Escape key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
         detailsRef.current.removeAttribute('open');
       }
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && detailsRef.current?.hasAttribute('open')) {
+        detailsRef.current.removeAttribute('open');
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -174,12 +181,16 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
                         scope="col"
                         className="sticky top-0 left-0 z-30 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer bg-gray-100 border-b border-r border-border-light"
                         onClick={() => handleSort('state')}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSort('state')}
                         style={{ minWidth: '180px' }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Sort by state ${sortKey === 'state' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : ''}`}
                     >
                         <div className="flex items-center">
                             <span>State</span>
                             {sortKey === 'state' && (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 {sortDirection === 'asc' ? <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /> : <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />}
                                 </svg>
                             )}
@@ -191,11 +202,15 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
                             scope="col"
                             className={`sticky top-0 z-20 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider select-none bg-gray-100 border-b border-border-light ${col.sortable ? 'cursor-pointer' : ''} ${col.widthClass} ${col.isLongText ? 'text-left' : 'text-center'}`}
                             onClick={() => col.sortable && handleSort(col.key as SortKey)}
+                            onKeyDown={(e) => col.sortable && e.key === 'Enter' && handleSort(col.key as SortKey)}
+                            role={col.sortable ? 'button' : undefined}
+                            tabIndex={col.sortable ? 0 : undefined}
+                            aria-label={col.sortable ? `Sort by ${col.label} ${sortKey === col.key ? (sortDirection === 'asc' ? 'descending' : 'ascending') : ''}` : col.label}
                         >
                              <div className={`flex items-center ${col.isLongText ? 'justify-start' : 'justify-center'}`}>
                                 <span>{col.label}</span>
                                 {col.sortable && sortKey === col.key && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                     {sortDirection === 'asc' ? <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /> : <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />}
                                     </svg>
                                 )}

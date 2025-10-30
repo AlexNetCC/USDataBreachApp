@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SavedAssessment } from '../../types';
+import { formatRelativeTime } from '../../utils/dateFormat';
 
 interface AssessmentProjectManagerProps {
   assessments: SavedAssessment[];
@@ -56,7 +57,7 @@ const AssessmentProjectManager: React.FC<AssessmentProjectManagerProps> = ({ ass
                 <div>
                   <p className="font-semibold text-text-primary">{assessment.name}</p>
                   <p className="text-sm text-text-secondary">
-                    Last modified: {new Date(assessment.lastModified).toLocaleString()}
+                    Last modified: {formatRelativeTime(assessment.lastModified)}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">

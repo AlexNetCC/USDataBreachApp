@@ -80,10 +80,11 @@ export const calculateObligations = (data: AssessmentData, allLaws: StateLaw[]):
 
     // AG Notification
     let agTimeline = law.agNotificationTimelineDays !== null ? (law.agNotificationTimelineDays > 0 ? `${law.agNotificationTimelineDays} days` : 'Concurrent') : 'ASAP';
-    
-    // Special handling for Iowa's AG notification which is relative to consumer notice
-    if (law.stateCode === 'IA') {
-      agTimeline = 'Within 5 business days of consumer notice';
+
+    // Handle special cases where AG timeline is relative to individual notice
+    if (law.agNotificationTimelineRelativeTo === 'individual_notice' &&
+        law.agNotificationTimelineRelativeDescription) {
+      agTimeline = law.agNotificationTimelineRelativeDescription;
     }
 
      if (data.lawEnforcementInvolvement && law.provisionLawEnforcementDelay) {
