@@ -17,23 +17,48 @@
               display: ['EB Garamond', 'serif'],
             },
             colors: {
-              background: '#F9F7F4',      // Off-white main background
-              surface: '#0B0F19',          // Dark navy for sidebars/headers
-              'surface-light': '#FFFFFF', // White for cards on light bg
-              'border-light': '#E5E7EB',    // Light gray border
-              'border-dark': '#374151',     // Darker gray border for dark surfaces
-              accent: '#D97706',           // Burnt orange accent (amber-600)
-              'accent-hover': '#B45309',   // Darker orange (amber-700)
-              'text-primary': '#526B82',     // Dark gray for text on light bg (Tailwind gray-800)
-              'text-secondary': '#4B5563',   // Lighter gray for secondary text on light bg
-              'text-on-dark': '#D1D5DB',       // Softer off-white for primary text on dark bg (Tailwind gray-300)
-              'text-on-dark-secondary': '#6B7280', // More subdued gray for secondary text on dark bg (Tailwind gray-500)
+              background: '#FAFAFA',         // Lighter, more modern background
+              surface: '#1A1F2E',             // Darker navy for better contrast
+              'surface-light': '#FFFFFF',     // Pure white for cards
+              'border-light': '#E2E8F0',      // Softer border (slate-200)
+              'border-dark': '#2D3748',       // Darker border for dark surfaces (gray-700)
+              accent: '#D97706',              // Burnt orange accent (amber-600)
+              'accent-hover': '#B45309',      // Darker orange (amber-700)
+              'text-primary': '#1A202C',      // Much darker for better readability (gray-900)
+              'text-secondary': '#4A5568',    // Better secondary text (gray-600)
+              'on-dark': '#F7FAFC',           // Brighter on dark (gray-50)
+              'on-dark-secondary': '#A0AEC0', // Better secondary on dark (gray-400)
             },
             boxShadow: {
-              'subtle': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-              'card': '0 4px 12px 0 rgb(0 0 0 / 0.07)',
-              'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            }
+              'subtle': '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+              'card': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06)',
+              'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04)',
+              '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.3s ease-out',
+              'slide-up': 'slideUp 0.3s ease-out',
+              'slide-down': 'slideDown 0.3s ease-out',
+              'scale-in': 'scaleIn 0.2s ease-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(100%)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              slideDown: {
+                '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              scaleIn: {
+                '0%': { transform: 'scale(0.95)', opacity: '0' },
+                '100%': { transform: 'scale(1)', opacity: '1' },
+              },
+            },
           },
         },
       }
