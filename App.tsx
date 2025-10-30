@@ -251,36 +251,60 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
-      <header className="bg-surface shadow-lg sticky top-0 z-30 no-print h-[88px]">
+      <header className="bg-surface shadow-header sticky top-0 z-30 no-print h-[88px] border-b border-border-dark/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-on-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
             </div>
-            <h1 className="text-2xl font-display font-semibold text-on-dark">
-              Data Breach Law Navigator
-            </h1>
+            <div>
+              <h1 className="text-2xl font-display font-bold text-on-dark leading-tight">
+                Data Breach Law Navigator
+              </h1>
+              <p className="text-xs text-on-dark-secondary font-medium">52 U.S. Jurisdictions</p>
+            </div>
           </div>
-           <nav className="flex items-center space-x-2">
+           <nav className="flex items-center gap-2">
             <button
               onClick={() => setViewMode('explorer')}
-              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'explorer' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-250 flex items-center gap-2 ${
+                appState.viewMode === 'explorer'
+                  ? 'bg-accent text-white shadow-md hover:bg-accent-hover'
+                  : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'
+              }`}
             >
-              Manual Explorer
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Explorer
             </button>
             <button
               onClick={() => setViewMode('assessment')}
-              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'assessment' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-250 flex items-center gap-2 ${
+                appState.viewMode === 'assessment'
+                  ? 'bg-accent text-white shadow-md hover:bg-accent-hover'
+                  : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'
+              }`}
             >
-              Breach Assessment
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Assessment
             </button>
              <button
               onClick={() => setViewMode('matrix')}
-              className={`px-5 py-2 text-base font-semibold rounded-md transition-colors duration-200 ${appState.viewMode === 'matrix' ? 'bg-accent text-white' : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'}`}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-250 flex items-center gap-2 ${
+                appState.viewMode === 'matrix'
+                  ? 'bg-accent text-white shadow-md hover:bg-accent-hover'
+                  : 'text-on-dark-secondary hover:bg-white/10 hover:text-on-dark'
+              }`}
             >
-              Requirements Matrix
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Matrix
             </button>
           </nav>
         </div>

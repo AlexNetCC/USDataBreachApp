@@ -17,22 +17,33 @@
               display: ['EB Garamond', 'serif'],
             },
             colors: {
-              background: '#F9F7F4',      // Off-white main background
-              surface: '#0B0F19',          // Dark navy for sidebars/headers
-              'surface-light': '#FFFFFF', // White for cards on light bg
-              'border-light': '#E5E7EB',    // Light gray border
-              'border-dark': '#374151',     // Darker gray border for dark surfaces
-              accent: '#D97706',           // Burnt orange accent (amber-600)
-              'accent-hover': '#B45309',   // Darker orange (amber-700)
-              'text-primary': '#526B82',     // Dark gray for text on light bg (Tailwind gray-800)
-              'text-secondary': '#4B5563',   // Lighter gray for secondary text on light bg
-              'text-on-dark': '#D1D5DB',       // Softer off-white for primary text on dark bg (Tailwind gray-300)
-              'text-on-dark-secondary': '#6B7280', // More subdued gray for secondary text on dark bg (Tailwind gray-500)
+              background: '#FFFFFF',          // Pure white main background
+              surface: '#1E293B',              // Darker slate for sidebars/headers (slate-800)
+              'surface-light': '#FFFFFF',     // Pure white for cards
+              'border-light': '#E2E8F0',      // Soft gray border (slate-200)
+              'border-dark': '#475569',       // Darker border for dark surfaces (slate-600)
+              accent: '#0891B2',              // Teal accent (cyan-600)
+              'accent-hover': '#0E7490',      // Darker teal (cyan-700)
+              'accent-light': '#06B6D4',      // Lighter teal for highlights (cyan-500)
+              'text-primary': '#0F172A',      // Very dark for high contrast (slate-900)
+              'text-secondary': '#475569',    // Medium gray for secondary text (slate-600)
+              'text-tertiary': '#64748B',     // Light gray for tertiary text (slate-500)
+              'text-on-dark': '#F1F5F9',      // Very light text on dark (slate-100)
+              'text-on-dark-secondary': '#94A3B8', // Softer text on dark (slate-400)
             },
             boxShadow: {
-              'subtle': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-              'card': '0 4px 12px 0 rgb(0 0 0 / 0.07)',
-              'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+              'subtle': '0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px 0 rgb(0 0 0 / 0.03)',
+              'card': '0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -1px rgb(0 0 0 / 0.04)',
+              'elevated': '0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -2px rgb(0 0 0 / 0.04)',
+              'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04)',
+              '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+              'header': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06)',
+            },
+            transitionDuration: {
+              '250': '250ms',
+            },
+            transitionTimingFunction: {
+              'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
             }
           },
         },
@@ -40,13 +51,42 @@
     </script>
     <style type="text/css">
       .h-screen-minus-header { height: calc(100vh - 88px); }
-      
+
+      /* Smooth transitions for all interactive elements */
+      * {
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
       @keyframes fade-in {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
       }
+
+      @keyframes slide-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes scale-in {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
       .animate-fade-in {
-        animation: fade-in 0.5s ease-out forwards;
+        animation: fade-in 0.4s ease-out forwards;
+      }
+
+      .animate-slide-in {
+        animation: slide-in 0.5s ease-out forwards;
+      }
+
+      .animate-scale-in {
+        animation: scale-in 0.3s ease-out forwards;
+      }
+
+      /* Smooth scroll behavior */
+      html {
+        scroll-behavior: smooth;
       }
 
       @media print {
