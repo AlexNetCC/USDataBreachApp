@@ -25,7 +25,7 @@ export const highlightSearchTerm = (text: string, searchTerm: string): string =>
   if (!searchTerm.trim()) return escapeHtml(text);
 
   const escaped = escapeHtml(text);
-  const escapedTerm = searchTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  const escapedTerm = searchTerm.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   const regex = new RegExp(escapedTerm, 'gi');
 
   return escaped.replace(regex, (match) =>
