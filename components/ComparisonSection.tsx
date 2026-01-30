@@ -115,4 +115,6 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = React.memo(({ title,
     return prevCodes === nextCodes && prevProps.fields === nextProps.fields;
 });
 
+ComparisonSection.displayName = 'ComparisonSection';
+
 export default ComparisonSection;

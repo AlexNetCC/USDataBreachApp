@@ -32,6 +32,7 @@ export default [
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+      'react/no-unescaped-entities': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -50,7 +51,8 @@ export default [
     ignores: [
       'dist/**',
       'node_modules/**',
-      '*.js',
+      '**/*.js',
+      'scripts/**',
       'public/laws.json',
       'server.log',
     ],
