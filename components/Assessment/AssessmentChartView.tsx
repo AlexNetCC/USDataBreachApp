@@ -11,7 +11,7 @@ interface AssessmentChartViewProps {
   onViewSummary: (stateCode: string) => void;
 }
 
-const AssessmentChartView: React.FC<AssessmentChartViewProps> = ({ results, discoveryDate, assessmentData, onViewSummary }) => {
+const AssessmentChartView: React.FC<AssessmentChartViewProps> = ({ results, discoveryDate: _discoveryDate, assessmentData: _assessmentData, onViewSummary }) => {
     const [sortKey, setSortKey] = useState<SortKey>('state');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
     

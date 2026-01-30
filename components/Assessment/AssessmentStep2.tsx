@@ -172,8 +172,8 @@ const AssessmentStep2: React.FC<AssessmentStep2Props> = ({ onNext, onBack, initi
         )}
         
         <div>
-          <label className="block text-md font-semibold text-text-primary mb-2">Is a "low risk of harm" determination being considered for this incident?</label>
-          <p className="text-sm text-text-secondary mb-2">Some states allow you to avoid notification if you determine the breach is unlikely to result in harm. Select "Yes" if you plan to perform this analysis.</p>
+          <label className="block text-md font-semibold text-text-primary mb-2">Is a 'low risk of harm' determination being considered for this incident?</label>
+          <p className="text-sm text-text-secondary mb-2">Some states allow you to avoid notification if you determine the breach is unlikely to result in harm. Select 'Yes' if you plan to perform this analysis.</p>
           <div className="flex space-x-4">
             {[
               { label: 'Yes', value: true },

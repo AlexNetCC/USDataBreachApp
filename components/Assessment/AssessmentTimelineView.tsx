@@ -75,7 +75,7 @@ const AssessmentTimelineView: React.FC<AssessmentTimelineViewProps> = ({ results
     if (!discoveryDate) {
         return (
             <div className="text-center p-8 bg-gray-50 rounded-lg">
-                <p className="text-lg text-text-secondary">Please select a "Breach Discovery Date" above to calculate and visualize deadlines.</p>
+                <p className="text-lg text-text-secondary">Please select a 'Breach Discovery Date' above to calculate and visualize deadlines.</p>
             </div>
         );
     }

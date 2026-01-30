@@ -9,8 +9,8 @@ import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWiza
 import MatrixView from './components/MatrixView';
 import ErrorBoundary from './components/ErrorBoundary';
 import { createLawIndex } from './services/dataIndexService';
-import { loadAppStateSync, saveAppStateSync, loadAppState, saveAppState } from './services/stateService';
-import { cacheLaws, loadCachedLaws, isCacheValid, getCacheAge } from './services/dataCacheService';
+import { loadAppStateSync, loadAppState, saveAppState } from './services/stateService';
+import { cacheLaws, loadCachedLaws } from './services/dataCacheService';
 import { highlightSearchTerm } from './utils/searchHighlight';
 
 const initialFilters: Filters = {
@@ -119,7 +119,7 @@ const App: React.FC = () => {
         const cachedLaws = await loadCachedLaws();
         
         if (cachedLaws && cachedLaws.length > 0) {
-          console.info('Using cached laws from IndexedDB');
+          console.warn('Using cached laws from IndexedDB');
           setIsOffline(true);
           setLoadingProgress({ stage: 'Loading from cache...', percent: 75 });
           setAllLaws(cachedLaws.sort((a, b) => a.state.localeCompare(b.state)));
