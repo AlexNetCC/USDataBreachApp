@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { StateLaw } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
 import InfoCard from './InfoCard';
 import BooleanIndicator from './BooleanIndicator';
-import AskAI from './AskAI';
 import CopyableProvision from './CopyableProvision';
 
 interface StateDetailViewProps {
@@ -34,9 +33,6 @@ const StateDetailView: React.FC<StateDetailViewProps> = ({ law }) => {
           </div>
         </div>
       </header>
-
-      {/* AI Assistant */}
-      <AskAI law={law} />
 
       {/* Copy Provisions - Compact Version */}
       <details className="bg-accent/5 border border-accent/20 rounded-lg no-print">

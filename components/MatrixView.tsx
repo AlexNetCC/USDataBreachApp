@@ -458,7 +458,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
         </button>
 
         {/* Customize Columns Button */}
-        <details className="inline-block" ref={detailsRef}>
+        <details className="relative inline-block" ref={detailsRef}>
           <summary className="list-none px-5 py-3 bg-surface text-on-dark border-2 border-surface rounded-lg font-semibold cursor-pointer hover:bg-surface/90 hover:border-surface/90 transition-all duration-250 flex items-center select-none shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
@@ -466,7 +466,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
             </svg>
             Customize Columns
           </summary>
-          <div className="absolute top-full mt-2 w-80 bg-surface-light border-2 border-border-light rounded-xl shadow-2xl z-50 p-5">
+          <div className="absolute top-full right-0 mt-2 w-80 bg-surface-light border-2 border-border-light rounded-xl shadow-2xl z-50 p-5 max-h-[80vh] overflow-y-auto">
             <p className="text-base font-bold mb-3 text-text-primary">Select columns to display:</p>
             <div className="space-y-2.5 max-h-72 overflow-y-auto pr-2">
               {ALL_COLUMNS.map(col => (
@@ -495,7 +495,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({ laws, onViewSummary }) => {
           <MultiStateExportSelector
             laws={sortedLaws}
             onExport={(selectedStates) => {
-              console.log('Export selected states:', selectedStates);
+              console.warn('Export selected states:', selectedStates);
               setShowExportSelector(false);
             }}
           />

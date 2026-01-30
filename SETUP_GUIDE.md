@@ -47,19 +47,6 @@ If you update any `.md` files in the `raw-laws/` folder, regenerate the database
 npm run parse-laws
 ```
 
-## Optional: AI Features
-
-If you want to use the AI assistant features, you need a Google Gemini API key:
-
-1. Create a file called `.env.local` in your project folder
-2. Add this line:
-   ```
-   GEMINI_API_KEY=your_api_key_here
-   ```
-3. Get a free API key from: https://aistudio.google.com/app/apikey
-
-Without this, the app works perfectly - you just won't see the AI question feature.
-
 ## Deploying to the Web
 
 To deploy your app so others can access it online:

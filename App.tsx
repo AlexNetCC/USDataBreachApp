@@ -9,7 +9,8 @@ import BreachAssessmentWizard from './components/Assessment/BreachAssessmentWiza
 import MatrixView from './components/MatrixView';
 import ErrorBoundary from './components/ErrorBoundary';
 import { createLawIndex } from './services/dataIndexService';
-import { loadAppState, saveAppState } from './services/stateService';
+import { loadAppStateSync, saveAppStateSync, loadAppState, saveAppState } from './services/stateService';
+import { cacheLaws, loadCachedLaws, isCacheValid, getCacheAge } from './services/dataCacheService';
 import { highlightSearchTerm } from './utils/searchHighlight';
 
 const initialFilters: Filters = {
@@ -33,27 +34,72 @@ const App: React.FC = () => {
   const [lawIndex, setLawIndex] = useState<LawIndex | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState<{stage: string, percent: number}>({
     stage: 'Fetching law data...',
     percent: 0
   });
 
   const [appState, setAppState] = useState<AppState>(() => {
-    return loadAppState() || defaultAppState;
+    // Try synchronous localStorage first for immediate UI
+    return loadAppStateSync() || defaultAppState;
   });
 
+  // Async effect to try IndexedDB fallback on initial load
   useEffect(() => {
+    const loadFromStorage = async () => {
+      // If we didn't get state from localStorage, try IndexedDB
+      const stored = await loadAppState();
+      if (stored) {
+        setAppState(stored);
+      }
+    };
+    loadFromStorage();
+  }, []);
+
+  useEffect(() => {
+    // Use async version with IndexedDB fallback
     saveAppState(appState);
   }, [appState]);
 
   useEffect(() => {
+    // Helper function for fetching with retry logic
+    const fetchWithRetry = async (url: string, maxRetries = 3): Promise<Response> => {
+      let lastError: Error | null = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            return res;
+          }
+          // If we get a 404 or other error, still throw but may retry
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        } catch (error: any) {
+          lastError = error;
+          console.warn(`Fetch attempt ${attempt + 1} failed:`, error.message);
+          
+          // Don't retry on the last attempt
+          if (attempt < maxRetries - 1) {
+            // Exponential backoff: wait 1s, then 2s, then 4s
+            const delayMs = Math.pow(2, attempt) * 1000;
+            setLoadingProgress({ 
+              stage: `Retrying... (attempt ${attempt + 2}/${maxRetries})`, 
+              percent: 25 
+            });
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
+        }
+      }
+      
+      throw lastError || new Error('Max retries exceeded');
+    };
+
     const fetchLaws = async () => {
       try {
+        setIsOffline(false);
         setLoadingProgress({ stage: 'Fetching law data...', percent: 25 });
-        const res = await fetch('laws.json');
-        if (!res.ok) {
-          throw new Error(`Failed to fetch laws.json: ${res.statusText}`);
-        }
+        const res = await fetchWithRetry('laws.json');
 
         setLoadingProgress({ stage: 'Parsing jurisdictions...', percent: 50 });
         const laws: StateLaw[] = await res.json();
@@ -62,9 +108,26 @@ const App: React.FC = () => {
         setAllLaws(laws.sort((a, b) => a.state.localeCompare(b.state)));
         setLawIndex(createLawIndex(laws));
 
+        // Cache laws for offline use
+        await cacheLaws(laws);
+
         setLoadingProgress({ stage: 'Ready!', percent: 100 });
       } catch (e: any) {
-        setError(`Failed to load law files: ${e.message}`);
+        console.warn('Network fetch failed, trying cache...', e);
+        
+        // Try to load from cache
+        const cachedLaws = await loadCachedLaws();
+        
+        if (cachedLaws && cachedLaws.length > 0) {
+          console.info('Using cached laws from IndexedDB');
+          setIsOffline(true);
+          setLoadingProgress({ stage: 'Loading from cache...', percent: 75 });
+          setAllLaws(cachedLaws.sort((a, b) => a.state.localeCompare(b.state)));
+          setLawIndex(createLawIndex(cachedLaws));
+          setLoadingProgress({ stage: 'Ready! (Offline Mode)', percent: 100 });
+        } else {
+          setError(`Failed to load law files after multiple attempts: ${e.message}. Please check your connection and reload the page.`);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -149,7 +212,6 @@ const App: React.FC = () => {
       const searchResults: StateLaw[] = [];
 
       for (const law of laws) {
-        delete law.searchSnippet;
         const stateMatch = law.state.toLowerCase().includes(lowercasedTerm) || law.stateCode.toLowerCase().includes(lowercasedTerm);
         const contentMatchIndex = law.markdownContent.toLowerCase().indexOf(lowercasedTerm);
 
@@ -166,7 +228,12 @@ const App: React.FC = () => {
 
             snippet = highlightSearchTerm(rawSnippet, appState.searchTerm);
           }
-          searchResults.push({ ...law, searchSnippet: snippet || undefined });
+          // Create new object to avoid mutating original law data
+          // searchSnippet is only included if there's actual content
+          const lawWithSnippet: StateLaw = snippet 
+            ? { ...law, searchSnippet: snippet }
+            : { ...law };
+          searchResults.push(lawWithSnippet);
         }
       }
       laws = searchResults;
@@ -266,9 +333,18 @@ const App: React.FC = () => {
               <p className="text-xs text-on-dark-secondary font-medium">52 U.S. Jurisdictions</p>
             </div>
           </div>
-           <nav className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('explorer')}
+           <div className="flex items-center gap-4">
+             {isOffline && (
+               <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full text-sm font-medium border border-amber-200">
+                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                 </svg>
+                 <span>Offline Mode</span>
+               </div>
+             )}
+             <nav className="flex items-center gap-2">
+               <button
+                 onClick={() => setViewMode('explorer')}
               className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-250 flex items-center gap-2 ${
                 appState.viewMode === 'explorer'
                   ? 'bg-accent text-white shadow-md hover:bg-accent-hover'
@@ -304,11 +380,12 @@ const App: React.FC = () => {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              Matrix
-            </button>
-          </nav>
-        </div>
-      </header>
+               Matrix
+             </button>
+             </nav>
+           </div>
+         </div>
+       </header>
 
       <ErrorBoundary>
         {renderContent()}

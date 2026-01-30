@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { StateLaw } from '../types';
-import GlobalAskAI from './GlobalAskAI';
 
 interface WelcomeProps {
   laws: StateLaw[];
@@ -31,7 +30,7 @@ const Welcome: React.FC<WelcomeProps> = ({ laws }) => {
           Navigate Breach Laws<br />with Confidence
         </h1>
         <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed font-light">
-          Your comprehensive resource for analyzing, comparing, and understanding U.S. data breach notification laws. Get started below or use our AI assistant.
+          Your comprehensive resource for analyzing, comparing, and understanding U.S. data breach notification laws.
         </p>
       </div>
 
@@ -47,24 +46,6 @@ const Welcome: React.FC<WelcomeProps> = ({ laws }) => {
           title="Compare Jurisdictions"
           description="Choose two or more states to generate an instant, side-by-side comparison of key legal provisions."
         />
-        <WelcomeCard
-          icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>}
-          title="Use the AI Assistant"
-          description="Ask complex comparative questions across all 50+ jurisdictions using the powerful AI assistant below."
-        />
-      </div>
-
-      {/* AI Assistant Section */}
-      <div className="w-full max-w-5xl mx-auto mt-20">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold font-display text-text-primary mb-3">
-            AI-Powered Legal Analysis
-          </h2>
-          <p className="text-text-secondary text-lg">
-            Ask complex questions across all jurisdictions and get instant, comprehensive answers
-          </p>
-        </div>
-        <GlobalAskAI laws={laws} />
       </div>
     </div>
   );

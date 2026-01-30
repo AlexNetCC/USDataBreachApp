@@ -1,20 +1,110 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Data Breach Law Navigator
 
-# Run and deploy your AI Studio app
+A comprehensive tool for analyzing, comparing, and understanding U.S. state data breach notification laws.
 
-This contains everything you need to run your app locally.
+**Live Demo:** [Your URL Here]
 
-View your app in AI Studio: https://ai.studio/apps/drive/1yu5yWyXnIL2JISKCqy1P6iwTLBuJpsOz
+## Features
 
-## Run Locally
+- 🔍 **Search & Filter** - Search across all 52 U.S. jurisdictions
+- 📊 **Matrix View** - Compare laws side-by-side in a sortable table
+- 📋 **Assessment Wizard** - Calculate notification obligations for breach scenarios
+- 📄 **Export Reports** - Generate professional PDF/HTML reports
+- 💾 **Offline Support** - Works without internet after first load
+- 🧪 **Well Tested** - 32 automated tests ensure reliability
 
-**Prerequisites:**  Node.js
+## Quick Start
 
+```bash
+# Install dependencies
+ npm install
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# Start development server
+ npm run dev
+
+# Open http://localhost:5000
+```
+
+## Development Commands
+
+```bash
+# Run tests
+ npm run test:run
+
+# Check code quality
+ npm run lint
+
+# Format code
+ npm run format
+
+# Build for production
+ npm run build
+```
+
+## Tech Stack
+
+- **Frontend:** React 19, TypeScript, Tailwind CSS
+- **Build Tool:** Vite
+- **Testing:** Vitest, React Testing Library
+- **Linting:** ESLint, Prettier
+- **CI/CD:** GitHub Actions
+
+## Architecture
+
+### Data Flow
+1. 52 state law files (Markdown + YAML) in `/raw-laws/`
+2. Build-time parsing creates `public/laws.json`
+3. App loads and indexes data for O(1) filtering
+4. IndexedDB caching enables offline usage
+
+### Key Components
+- **StateSelector** - Sidebar with search and filters
+- **MatrixView** - Comparison table with column customization
+- **BreachAssessmentWizard** - Multi-step assessment flow
+- **ExportService** - Report generation
+
+## Testing
+
+All core functions have automated tests:
+- ✅ Data indexing and search
+- ✅ Input validation
+- ✅ Color coding utilities
+- ✅ 32 total tests, all passing
+
+Run tests: `npm run test:run`
+
+## Deployment
+
+### Automatic (Recommended)
+Push to `main` branch → GitHub Actions runs tests → Auto-deploys
+
+### Manual
+```bash
+ npm run build
+# Upload `dist/` folder to your hosting provider
+```
+
+## Project Structure
+
+```
+├── components/           - React components
+├── services/            - Business logic (data, export, assessment)
+├── utils/               - Helper functions
+├── tests/               - Automated tests
+├── raw-laws/            - Source law files (52 states)
+├── scripts/             - Build scripts
+├── .github/workflows/   - CI/CD configuration
+└── dist/                - Production build (generated)
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow.
+
+## License
+
+[Your License Here]
+
+## Acknowledgments
+
+Built with modern web technologies and best practices for reliability and performance.

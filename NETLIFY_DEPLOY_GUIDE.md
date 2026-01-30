@@ -145,7 +145,7 @@ Once deployed, your app will:
 
 **File sizes:**
 - HTML: 3.8 KB
-- JavaScript: 470 KB (includes React, all your data, and AI features)
+- JavaScript: ~350 KB (includes React and all your data)
 - Total load time: < 2 seconds on average connection
 
 ---
@@ -154,7 +154,7 @@ Once deployed, your app will:
 
 1. **Test your live app** - Make sure everything works
 2. **Custom domain** (optional) - Add your own domain in Netlify
-3. **Environment variables** - Add `GEMINI_API_KEY` in Netlify for AI features
+3. **Custom domain** (optional) - Configure your own domain
 4. **Analytics** - Enable Netlify Analytics to track usage
 5. **Share** - Send the URL to colleagues for feedback!
 

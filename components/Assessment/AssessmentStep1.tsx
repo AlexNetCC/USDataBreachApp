@@ -15,6 +15,7 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
       return acc;
     }, {} as {[key: string]: string})
   );
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [pastedData, setPastedData] = useState('');
 
@@ -28,11 +29,38 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
   }, [laws]);
 
   const handleCountChange = (stateCode: string, value: string) => {
+    // Validate input: only allow positive integers or empty string
+    const numValue = parseInt(value, 10);
+    
+    // Update the count value
     setCounts(prev => ({ ...prev, [stateCode]: value }));
+    
+    // Validate and set error message if needed
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      
+      if (value === '' || value === '0') {
+        // Empty or zero is acceptable (will be filtered out on submit)
+        delete newErrors[stateCode];
+      } else if (isNaN(numValue)) {
+        newErrors[stateCode] = 'Please enter a valid number';
+      } else if (numValue < 0) {
+        newErrors[stateCode] = 'Cannot be negative';
+      } else if (numValue > 1_000_000_000) {
+        newErrors[stateCode] = 'Maximum is 1 billion';
+      } else if (value.includes('.') || value.includes('e')) {
+        newErrors[stateCode] = 'Must be a whole number';
+      } else {
+        // Valid input - remove any existing error
+        delete newErrors[stateCode];
+      }
+      
+      return newErrors;
+    });
   };
 
   const handleAddState = (stateCode: string) => {
-    if (!counts.hasOwnProperty(stateCode)) {
+    if (!Object.prototype.hasOwnProperty.call(counts, stateCode)) {
       setCounts(prev => ({ ...prev, [stateCode]: '' }));
     }
     setSearchTerm('');
@@ -217,17 +245,25 @@ const AssessmentStep1: React.FC<AssessmentStep1Props> = ({ onNext, initialData, 
                         {sortedAddedStateLaws.map(law => (
                             <div key={law.stateCode} className="flex items-center justify-between gap-4 p-3 rounded-lg hover:bg-accent/5 animate-fade-in border border-transparent hover:border-accent/20 transition-all">
                                 <label htmlFor={law.stateCode} className="font-semibold text-text-primary flex-1">{law.state}</label>
-                                <input
-                                    type="number"
-                                    id={law.stateCode}
-                                    value={counts[law.stateCode] || ''}
-                                    onChange={e => handleCountChange(law.stateCode, e.target.value)}
-                                    placeholder="Count"
-                                    min="1"
-                                    max="1000000000"
-                                    step="1"
-                                    className="w-36 p-2.5 border-2 border-border-light rounded-lg bg-white text-text-primary text-right focus:ring-2 focus:ring-accent focus:border-accent transition-all hover:border-accent/50 font-semibold"
-                                />
+                                <div className="flex flex-col items-end">
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        id={law.stateCode}
+                                        value={counts[law.stateCode] || ''}
+                                        onChange={e => handleCountChange(law.stateCode, e.target.value)}
+                                        placeholder="Count"
+                                        className={`w-36 p-2.5 border-2 rounded-lg bg-white text-text-primary text-right focus:ring-2 focus:ring-accent focus:border-accent transition-all hover:border-accent/50 font-semibold ${
+                                            errors[law.stateCode] 
+                                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                                                : 'border-border-light'
+                                        }`}
+                                    />
+                                    {errors[law.stateCode] && (
+                                        <span className="text-red-600 text-xs mt-1 font-medium">{errors[law.stateCode]}</span>
+                                    )}
+                                </div>
                                 <button onClick={() => handleRemoveState(law.stateCode)} className="text-text-secondary hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all" aria-label={`Remove ${law.state}`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

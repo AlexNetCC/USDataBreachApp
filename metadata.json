@@ -1,5 +1,5 @@
 {
-  "name": "Data Breach Law Navigator (Main Branch)",
-  "description": "A comprehensive resource for privacy attorneys to analyze, compare, and understand U.S. state data breach notification laws. This tool provides detailed views of individual state laws, a side-by-side comparison feature, and an AI-powered assistant to answer specific questions about the legal text.",
+  "name": "Data Breach Law Navigator",
+  "description": "A comprehensive resource for privacy attorneys to analyze, compare, and understand U.S. state data breach notification laws. This tool provides detailed views of individual state laws, side-by-side comparison features, and breach assessment capabilities.",
   "requestFramePermissions": []
 }

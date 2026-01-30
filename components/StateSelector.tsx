@@ -180,6 +180,25 @@ const StateSelector: React.FC<StateSelectorProps> = ({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef<HTMLDivElement>(null);
 
+    // Local state for immediate input feedback (debounced search)
+    const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+    
+    // Debounce the search callback (300ms) to prevent excessive re-renders
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (localSearchTerm !== searchTerm) {
+          onSearchChange(localSearchTerm);
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }, [localSearchTerm, searchTerm, onSearchChange]);
+    
+    // Sync with parent when searchTerm changes externally (e.g., reset filters)
+    useEffect(() => {
+      setLocalSearchTerm(searchTerm);
+    }, [searchTerm]);
+
     const handleNumericChange = (name: keyof Filters, value: string) => {
         onFilterChange(name, value === '' ? null : Number(value));
     };
@@ -218,8 +237,8 @@ const StateSelector: React.FC<StateSelectorProps> = ({
           <input
             type="text"
             placeholder="Search states and law text..."
-            value={searchTerm}
-            onChange={e => onSearchChange(e.target.value)}
+            value={localSearchTerm}
+            onChange={e => setLocalSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-border-dark rounded-md focus:ring-2 focus:ring-accent focus:border-accent transition bg-surface text-on-dark placeholder-on-dark-secondary"
           />
           <svg className="w-5 h-5 text-on-dark-secondary absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -28,6 +28,10 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
       return this.props.fallback || (
@@ -53,12 +57,23 @@ class ErrorBoundary extends Component<Props, State> {
             <p className="text-text-secondary mb-4 text-center">
               {this.state.error?.message || 'An unexpected error occurred'}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full px-4 py-2 bg-accent text-white font-semibold rounded-md hover:bg-accent-hover transition"
-            >
-              Reload Application
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={this.handleReset}
+                className="w-full px-4 py-2 bg-surface border-2 border-accent text-accent font-semibold rounded-md hover:bg-accent/5 transition"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full px-4 py-2 bg-accent text-white font-semibold rounded-md hover:bg-accent-hover transition"
+              >
+                Reload Application
+              </button>
+            </div>
+            <p className="text-xs text-text-tertiary mt-4 text-center">
+              "Try Again" preserves your current work. "Reload" clears everything.
+            </p>
           </div>
         </div>
       );
